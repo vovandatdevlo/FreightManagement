@@ -1,0 +1,97 @@
+﻿using FreightManagement.MainRepositories.RepoInterfaces;
+using FreightManagement.MainRepositories.Repository;
+using FreightManagement.Models;
+using System.Security.Cryptography;
+using System.Text;
+using FreightManagement.DTOs;
+
+namespace FreightManagement.Service
+{
+    public class AccountService
+    {
+        private readonly IUsersRepository _UsersRepo;
+        public AccountService(IUsersRepository UsersRepo)
+        {
+            _UsersRepo = UsersRepo;
+        }
+        public bool IsInValidAccount(string email, string password)
+        {
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+                return true;
+            return false;
+        }
+        public bool IsNullObject(User user)
+        {
+            if (user == null)
+                return true;
+            return false;
+        }
+        public async Task<bool> IsExistObject(string email)
+        {
+            if (await _UsersRepo.CheckExistUserByEmail(email))
+                return true;
+            return false;
+        }
+        public async Task<User> GetUserToLogin(string email, string password)
+        {
+            var hash = HashPassword(password);
+            return await _UsersRepo.GetUserByAccount(email, hash);
+        }
+        private static string HashPassword(string password)
+        {
+            using var sha = SHA256.Create();
+            var bytes = Encoding.UTF8.GetBytes(password);
+            var hash = sha.ComputeHash(bytes);
+            return Convert.ToHexString(hash);
+        }
+        public async Task AddUser(User user)
+        {
+            user.PasswordHash = HashPassword(user.PasswordHash);
+            await _UsersRepo.AddUser(user);
+        }
+        public async Task<User> GetUserByRoleAndId(int userId)
+        {
+            return await _UsersRepo.GetUserByRoleAndUserID(userId);
+        }
+        public async Task<User> GetUserById(int userId)
+        {
+            return await _UsersRepo.GetUserById(userId);
+        }
+        public bool IsEmptyHoTen(string hoten)
+        {
+            if (string.IsNullOrWhiteSpace(hoten))
+                return true;
+            return false;
+        }
+        public async Task<User> GetFirstUserById(int userId)
+        {
+            return await _UsersRepo.GetFirstUserById(userId);
+        }
+        public async Task UpdateInFor(string roleName, User user, UpdateProfileDTO obj)
+        {
+            user.HoTen = obj.hoTen.Trim();
+            user.SoDienThoai = obj.soDienThoai?.Trim();
+            user.DiaChi = obj.diaChi?.Trim();
+            if (roleName == "TaiXe" && !string.IsNullOrWhiteSpace(obj.cccd))
+                user.CCCD = obj.cccd.Trim();
+            await _UsersRepo.UpdateUser(user);
+        }
+        public async Task<(bool success, string message)> ChangePasswordMessage(int userId, ChangePasswordDTO obj)
+        {
+            var user = await _UsersRepo.GetUserById(userId);
+            if (string.IsNullOrWhiteSpace(obj.newPassword) || obj.newPassword.Length < 6)
+            {
+                return (false, "Mật khẩu mới phải có ít nhất 6 ký tự.");
+            }
+            if (obj.newPassword != obj.confirmPassword)
+                return (false, "Mật khẩu xác nhận không khớp.");
+            if (user == null || user.PasswordHash != HashPassword(obj.currentPassword))
+                return (false, "Mật khẩu hiện tại không đúng.");
+            if (HashPassword(obj.newPassword) == user.PasswordHash)
+                return (false, "Mật khẩu mới không được trùng mật khẩu cũ.");
+            user.PasswordHash = HashPassword(obj.newPassword);
+            await _UsersRepo.UpdateUser(user);
+            return (true, "Đổi mật khẩu thành công! Vui lòng đăng nhập lại.");
+        }
+    }
+}

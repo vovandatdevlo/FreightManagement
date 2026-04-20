@@ -5,41 +5,32 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 using System.Text;
+using FreightManagement.Service;
+using FreightManagement.DTOs;
 
-namespace FreightManagement.Controllers
+namespace FreightManagement.MainControllers
 {
     public class AccountController : Controller
     {
-        private readonly AppDbContext _db;
-
-        public AccountController(AppDbContext db)
+        private readonly AccountService _acc;
+        public AccountController(AccountService acc)
         {
-            _db = db;
+            _acc = acc;
         }
-
-        // --------------------------------------------------
-        // ĐĂNG NHẬP
-        // --------------------------------------------------
         public IActionResult Login() => View();
 
         [HttpPost]
         public async Task<IActionResult> Login(string email, string password)
         {
-            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+            if (_acc.IsInValidAccount(email, password))
             {
                 ViewBag.Error = "Vui lòng nhập đầy đủ thông tin.";
                 return View();
             }
 
-            var hash = HashPassword(password);
+            var user = await _acc.GetUserToLogin(email, password);
 
-            var user = await _db.Users
-                .Include(u => u.Role)
-                .FirstOrDefaultAsync(u => u.Email == email
-                                       && u.PasswordHash == hash
-                                       && u.TrangThai == "HoatDong");
-
-            if (user == null)
+            if (_acc.IsNullObject(user))
             {
                 ViewBag.Error = "Email hoặc mật khẩu không đúng, hoặc tài khoản đã bị khóa.";
                 return View();
@@ -69,17 +60,16 @@ namespace FreightManagement.Controllers
         public IActionResult Register() => View();
 
         [HttpPost]
-        public async Task<IActionResult> Register(string hoTen, string email,
-            string password, string confirmPassword,
-            string? soDienThoai, string? diaChi)
+        public async Task<IActionResult> Register(AccountRegisterDTO obj)
         {
-            if (password != confirmPassword)
+            
+            if (obj.password != obj.confirmPassword)
             {
                 ViewBag.Error = "Mật khẩu xác nhận không khớp.";
                 return View();
             }
 
-            if (await _db.Users.AnyAsync(u => u.Email == email))
+            if (await _acc.IsExistObject(obj.email))
             {
                 ViewBag.Error = "Email này đã được đăng ký.";
                 return View();
@@ -87,16 +77,15 @@ namespace FreightManagement.Controllers
 
             var user = new User
             {
-                HoTen = hoTen,
-                Email = email,
-                PasswordHash = HashPassword(password),
-                SoDienThoai = soDienThoai,
-                DiaChi = diaChi,
+                HoTen = obj.hoTen,
+                Email = obj.email,
+                PasswordHash = obj.password,
+                SoDienThoai = obj.soDienThoai,
+                DiaChi = obj.diaChi,
                 RoleId = 2  // KhachHang
             };
 
-            _db.Users.Add(user);
-            await _db.SaveChangesAsync();
+            await _acc.AddUser(user);
 
             TempData["Success"] = "Đăng ký thành công! Vui lòng đăng nhập.";
             return RedirectToAction("Login");
@@ -118,58 +107,53 @@ namespace FreightManagement.Controllers
         //   BCrypt.Net.BCrypt.HashPassword(password)
         //   BCrypt.Net.BCrypt.Verify(password, hash)
         // --------------------------------------------------
-        private static string HashPassword(string password)
-        {
-            using var sha = SHA256.Create();
-            var bytes = Encoding.UTF8.GetBytes(password);
-            var hash = sha.ComputeHash(bytes);
-            return Convert.ToHexString(hash);
-        }
+        //private static string HashPassword(string password)
+        //{
+        //    // service
+        //    using var sha = SHA256.Create();
+        //    var bytes = Encoding.UTF8.GetBytes(password);
+        //    var hash = sha.ComputeHash(bytes);
+        //    return Convert.ToHexString(hash);
+        //}
 
         // ── XEM THÔNG TIN CÁ NHÂN ──────────────────────────────────────────
         [RequireLogin]
         public async Task<IActionResult> Profile()
         {
             var userId = HttpContext.Session.GetInt32("UserId")!.Value;
-            var user = await _db.Users
-                .Include(u => u.Role)
-                .FirstOrDefaultAsync(u => u.UserId == userId);
-            if (user == null) return RedirectToAction("Login");
+
+            var user = await _acc.GetUserByRoleAndId(userId);
+
+            if (_acc.IsNullObject(user)) return RedirectToAction("Login");
             return View(user);
         }
 
         // ── CẬP NHẬT THÔNG TIN CÁ NHÂN ─────────────────────────────────────
         [HttpPost]
         [RequireLogin]
-        public async Task<IActionResult> UpdateProfile(
-            string hoTen, string? soDienThoai,
-            string? diaChi, string? cccd)
+        public async Task<IActionResult> UpdateProfile(UpdateProfileDTO obj)
         {
             var userId = HttpContext.Session.GetInt32("UserId")!.Value;
-            var user = await _db.Users.FindAsync(userId);
 
-            if (user == null) return RedirectToAction("Login");
+            var user = await _acc.GetUserById(userId);
+
+            if (_acc.IsNullObject(user)) return RedirectToAction("Login");
 
             // Validate họ tên không được rỗng
-            if (string.IsNullOrWhiteSpace(hoTen))
+
+            if (_acc.IsEmptyHoTen(obj.hoTen))
             {
-                var u = await _db.Users.Include(x => x.Role)
-                            .FirstAsync(x => x.UserId == userId);
+                var u = await _acc.GetFirstUserById(userId);
                 ViewBag.Error = "Họ tên không được để trống.";
                 return View("Profile", u);
             }
 
             // Cập nhật thông tin
-            user.HoTen = hoTen.Trim();
-            user.SoDienThoai = soDienThoai?.Trim();
-            user.DiaChi = diaChi?.Trim();
 
             // CCCD chỉ cập nhật cho TaiXe
             var roleName = HttpContext.Session.GetString("RoleName");
-            if (roleName == "TaiXe" && !string.IsNullOrWhiteSpace(cccd))
-                user.CCCD = cccd.Trim();
 
-            await _db.SaveChangesAsync();
+            await _acc.UpdateInFor(roleName, user, obj);
 
             // Cập nhật tên trong Session
             HttpContext.Session.SetString("HoTen", user.HoTen);
@@ -185,43 +169,21 @@ namespace FreightManagement.Controllers
         // ── ĐỔI MẬT KHẨU ───────────────────────────────────────────────────
         [HttpPost]
         [RequireLogin]
-        public async Task<IActionResult> ChangePassword(
-            string currentPassword, string newPassword, string confirmPassword)
+        public async Task<IActionResult> ChangePassword(ChangePasswordDTO obj)
         {
-            if (string.IsNullOrWhiteSpace(newPassword) || newPassword.Length < 6)
-            {
-                ViewBag.Error = "Mật khẩu mới phải có ít nhất 6 ký tự.";
-                return View();
-            }
-
-            if (newPassword != confirmPassword)
-            {
-                ViewBag.Error = "Mật khẩu xác nhận không khớp.";
-                return View();
-            }
-
             var userId = HttpContext.Session.GetInt32("UserId")!.Value;
-            var user = await _db.Users.FindAsync(userId);
-
-            if (user == null || user.PasswordHash != HashPassword(currentPassword))
+            var result = await _acc.ChangePasswordMessage(userId, obj);
+            if (!result.success)
             {
-                ViewBag.Error = "Mật khẩu hiện tại không đúng.";
+                ViewBag.Error = result.message;
                 return View();
             }
-
-            if (HashPassword(newPassword) == user.PasswordHash)
+            else
             {
-                ViewBag.Error = "Mật khẩu mới không được trùng mật khẩu cũ.";
-                return View();
+                TempData["Success"] = result.message;
+                HttpContext.Session.Clear();
+                return RedirectToAction("Login");
             }
-
-            user.PasswordHash = HashPassword(newPassword);
-            await _db.SaveChangesAsync();
-
-            TempData["Success"] = "Đổi mật khẩu thành công! Vui lòng đăng nhập lại.";
-            HttpContext.Session.Clear();
-            return RedirectToAction("Login");
         }
-
     }
 }

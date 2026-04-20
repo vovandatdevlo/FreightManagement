@@ -1,0 +1,87 @@
+﻿using FreightManagement.Data;
+using FreightManagement.Filters;
+using FreightManagement.Models;
+using FreightManagement.Service;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using FreightManagement.DTOs;
+
+namespace FreightManagement.MainControllers
+{
+    [RequireLogin("KhachHang")]
+    public class OrdersController : Controller
+    {
+        private readonly OrdersService _os;
+        public OrdersController(OrdersService os)
+        {
+            _os = os;
+        }
+
+        private static readonly List<string> Provinces = new()
+        {
+            "An Giang","Bà Rịa - Vũng Tàu","Bắc Giang","Bắc Kạn","Bạc Liêu","Bắc Ninh",
+            "Bến Tre","Bình Định","Bình Dương","Bình Phước","Bình Thuận","Cà Mau","Cần Thơ",
+            "Cao Bằng","Đà Nẵng","Đắk Lắk","Đắk Nông","Điện Biên","Đồng Nai","Đồng Tháp",
+            "Gia Lai","Hà Giang","Hà Nam","Hà Nội","Hà Tĩnh","Hải Dương","Hải Phòng",
+            "Hậu Giang","Hòa Bình","Hưng Yên","Khánh Hòa","Kiên Giang","Kon Tum","Lai Châu",
+            "Lâm Đồng","Lạng Sơn","Lào Cai","Long An","Nam Định","Nghệ An","Ninh Bình",
+            "Ninh Thuận","Phú Thọ","Phú Yên","Quảng Bình","Quảng Nam","Quảng Ngãi",
+            "Quảng Ninh","Quảng Trị","Sóc Trăng","Sơn La","Tây Ninh","Thái Bình","Thái Nguyên",
+            "Thanh Hóa","Thừa Thiên Huế","Tiền Giang","TP. Hồ Chí Minh","Trà Vinh","Tuyên Quang",
+            "Vĩnh Long","Vĩnh Phúc","Yên Bái"
+        };
+
+        public async Task<IActionResult> Index()
+        {
+            var userId = HttpContext.Session.GetInt32("UserId")!.Value;
+            var orders = await _os.OrdersGetDonHangsByMaKHAndDescending(userId);
+            return View(orders);
+        }
+
+        public async Task<IActionResult> Create()
+        {
+            var userId = HttpContext.Session.GetInt32("UserId")!.Value;
+            var user = await _os.GetUserById(userId);
+
+            ViewBag.HoTen = user?.HoTen;
+            ViewBag.SoDienThoai = user?.SoDienThoai;
+            ViewBag.DiaChi = user?.DiaChi;
+            ViewBag.Provinces = Provinces;
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Create(CreateOrderDTO obj)
+        {
+            var userId = HttpContext.Session.GetInt32("UserId")!.Value;
+            var result = await _os.CreateOrderService(userId, obj);
+            TempData["Success"] = result;
+            return RedirectToAction("Index");
+        }
+
+        public async Task<IActionResult> Detail(int id)
+        {
+            var userId = HttpContext.Session.GetInt32("UserId")!.Value;
+            var result = await _os.DetailOrderService(id, userId);
+            if (!result.IsValidOrder)
+                return NotFound();
+            return View(result.order);
+        }
+
+        public async Task<IActionResult> Cancel(int id)
+        {
+            var userId = HttpContext.Session.GetInt32("UserId")!.Value;
+            var result = await _os.CancelService(id, userId);
+            if (!result.IsValidOrder)
+            {
+                TempData["Error"] = result.message;
+                return RedirectToAction("Index");
+            }
+            else
+            {
+                TempData["Success"] = result.message;
+                return RedirectToAction("Index");
+            }
+        }
+    }
+}

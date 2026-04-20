@@ -2,7 +2,7 @@
 using FreightManagement.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace FreightManagement.Controllers
+namespace FreightManagement.MainControllers
 {
     public class HomeController : Controller
     {

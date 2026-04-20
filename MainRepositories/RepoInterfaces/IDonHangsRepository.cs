@@ -1,0 +1,28 @@
+﻿using FreightManagement.Models;
+using FreightManagement.DTOs;
+
+namespace FreightManagement.MainRepositories.RepoInterfaces
+{
+    public interface IDonHangsRepository
+    {
+        Task UpdateOrder(DonHang order);
+        Task<int> GetDonHangsCount();
+        Task<int> GetDonHangsCountByTrangThai(string trangthai);
+        Task<List<DonHang>> GetRecentDonHangs();
+        Task<List<DonHang>> GetFullOrders();
+        Task<int> GetDonHangsCountByTrangThaiAndId(int uid, string trangthai);
+        Task<List<DonHang>> TaixeGetMyDonHangs(int uid, string trangthai);
+        Task<DonHang> TaixeGetDonHangsByMadonAndMaTX(int madon, int MaTX);
+        Task<List<DonHang>> TaixeGetDonHangsByMaTXAndTrangThai(int MaTX, string trangthai);
+        Task<List<DonHang>> TaixeGetDonHangsByMaTXAndTrangThaiAndDescending(int MaTX, string trangthai);
+        Task<List<DonHang>> OrdersGetDonHangsByMaKHAndDescending(int uid);
+        Task OrdersAddDonHangs(DonHang order);
+        Task<DonHang> OrdersGetDonHangsIncludeByMaDonAndMaKH(int id, int userId);
+        Task<DonHang> OrdersGetDonHangsByMaDonAndMaKH(int id, int userId);
+        Task<int> WarehouseGetDonHangsCountByTrangThaiAndNgayCapNhat(string trangthai);
+        Task<List<DonHang>> WarehouseGetDonHangsToIncoming(string trangthai);
+        Task<DonHang> WarehouseGetDonHangsToNhanVaoKho(int madon);
+        Task<List<DonHang>> WarehouseGetDonHangsToAssignOrders(string trangthai);
+        Task<List<Taixetheokho>> WarehouseGetDonHangsToAssignTaixetheokho(string trangthai);
+    }
+}
