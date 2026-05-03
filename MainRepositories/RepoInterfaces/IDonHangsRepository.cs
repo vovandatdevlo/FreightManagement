@@ -10,6 +10,15 @@ namespace FreightManagement.MainRepositories.RepoInterfaces
         Task<int> GetDonHangsCountByTrangThai(string trangthai);
         Task<List<DonHang>> GetRecentDonHangs();
         Task<List<DonHang>> GetFullOrders();
+
+        // YC5: filter + phân trang
+        Task<(List<DonHang> items, int totalCount)> GetFullOrdersFiltered(
+            string? trangThai, string? tuNgay, string? denNgay,
+            string? tuKhoa, int page, int pageSize);
+
+        // YC4: lấy theo trạng thái bất kỳ (dùng cho "Giao thất bại")
+        Task<List<DonHang>> GetDonHangsByTrangThai(string trangthai);
+
         Task<int> GetDonHangsCountByTrangThaiAndId(int uid, string trangthai);
         Task<List<DonHang>> TaixeGetMyDonHangs(int uid, string trangthai);
         Task<DonHang> TaixeGetDonHangsByMadonAndMaTX(int madon, int MaTX);

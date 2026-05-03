@@ -11,14 +11,13 @@ namespace FreightManagement.MainControllers
     public class DriverController : Controller
     {
         private readonly DriverService _ds;
-        public DriverController(DriverService ds) 
-        {
-            _ds = ds; 
-        }
+        public DriverController(DriverService ds) { _ds = ds; }
+
+        private int GetUid() => int.Parse(User.FindFirst("UserId")!.Value);
 
         public async Task<IActionResult> Index()
         {
-            var uid = int.Parse(User.FindFirst("UserId")!.Value);
+            var uid = GetUid();
             ViewBag.ChoXuLy = await _ds.GetDonHangsCountByTrangThaiAndId(uid, "Đã vào kho");
             ViewBag.DangGiao = await _ds.GetDonHangsCountByTrangThaiAndId(uid, "Đang vận chuyển");
             ViewBag.HoanThanh = await _ds.GetDonHangsCountByTrangThaiAndId(uid, "Đã giao");
@@ -27,16 +26,14 @@ namespace FreightManagement.MainControllers
 
         public async Task<IActionResult> MyOrders()
         {
-            var uid = int.Parse(User.FindFirst("UserId")!.Value);
-            var orders = await _ds.TaixeGetMyDonHangs(uid, "Đã vào kho");
+            var orders = await _ds.TaixeGetMyDonHangs(GetUid(), "Đã vào kho");
             return View(orders);
         }
 
         [HttpPost]
         public async Task<IActionResult> ChapNhan(int maDon)
         {
-            var uid = int.Parse(User.FindFirst("UserId")!.Value);
-            var result = await _ds.ChapNhanService(uid, maDon);
+            var result = await _ds.ChapNhanService(GetUid(), maDon);
             if (!result.IsValidOrder) return NotFound();
             TempData["Success"] = result.message;
             return RedirectToAction("MyOrders");
@@ -44,25 +41,34 @@ namespace FreightManagement.MainControllers
 
         public async Task<IActionResult> Delivering()
         {
-            var uid = int.Parse(User.FindFirst("UserId")!.Value);
-            var orders = await _ds.TaixeGetDonHangsByMaTXAndTrangThai(uid, "Đang vận chuyển");
+            var orders = await _ds.TaixeGetDonHangsByMaTXAndTrangThai(GetUid(), "Đang vận chuyển");
             return View(orders);
         }
 
         [HttpPost]
         public async Task<IActionResult> GiaoThanhCong(int maDon)
         {
-            var uid = int.Parse(User.FindFirst("UserId")!.Value);
-            var result = await _ds.GiaoThanhCongService(uid, maDon);
+            var result = await _ds.GiaoThanhCongService(GetUid(), maDon);
             if (!result.IsValidOrder) return NotFound();
             TempData["Success"] = result.message;
             return RedirectToAction("Delivering");
         }
 
+        // ── YC4: Tài xế báo giao thất bại ────────────────────────────────
+        [HttpPost]
+        public async Task<IActionResult> GiaoThatBai(int maDon)
+        {
+            var result = await _ds.GiaoThatBaiService(GetUid(), maDon);
+            if (!result.IsValidOrder)
+                TempData["Error"] = result.message;
+            else
+                TempData["Warning"] = result.message;
+            return RedirectToAction("Delivering");
+        }
+
         public async Task<IActionResult> Completed()
         {
-            var uid = int.Parse(User.FindFirst("UserId")!.Value);
-            var orders = await _ds.TaixeGetDonHangsByMaTXAndTrangThaiAndDescending(uid, "Đã giao");
+            var orders = await _ds.TaixeGetDonHangsByMaTXAndTrangThaiAndDescending(GetUid(), "Đã giao");
             return View(orders);
         }
     }

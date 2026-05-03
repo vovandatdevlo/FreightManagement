@@ -13,19 +13,21 @@ namespace FreightManagement.MainControllers
         private readonly WarehouseService _ws;
         public WarehouseController(WarehouseService ws) { _ws = ws; }
 
+        private int GetUid() => int.Parse(User.FindFirst("UserId")!.Value);
+
         public async Task<IActionResult> Index()
         {
             ViewBag.ChoNhanVaoKho = await _ws.GetDonHangsCountByTrangThai("Đang xử lý");
             ViewBag.DangTrongKho = await _ws.GetDonHangsCountByTrangThai("Đã vào kho");
             ViewBag.DangVanChuyen = await _ws.GetDonHangsCountByTrangThai("Đang vận chuyển");
             ViewBag.DaGiao = await _ws.WarehouseGetDonHangsCountByTrangThaiAndNgayCapNhat("Đã giao");
+            ViewBag.GiaoThatBai = await _ws.GetDonHangsCountByTrangThai("Giao thất bại");
             return View();
         }
 
         public async Task<IActionResult> Incoming()
         {
-            var uid = int.Parse(User.FindFirst("UserId")!.Value);
-            var result = await _ws.IncomingService("Đang xử lý", uid);
+            var result = await _ws.IncomingService("Đang xử lý", GetUid());
             ViewBag.Khos = result.Warehouses;
             return View(result.orders);
         }
@@ -33,8 +35,7 @@ namespace FreightManagement.MainControllers
         [HttpPost]
         public async Task<IActionResult> NhanVaoKho(int maDon, int maKho)
         {
-            var uid = int.Parse(User.FindFirst("UserId")!.Value);
-            var result = await _ws.NhanVaoKhoService(uid, maDon, maKho);
+            var result = await _ws.NhanVaoKhoService(GetUid(), maDon, maKho);
             if (!result.IsValidItem) return NotFound();
             TempData["Success"] = result.message;
             return RedirectToAction("Incoming");
@@ -50,11 +51,29 @@ namespace FreightManagement.MainControllers
         [HttpPost]
         public async Task<IActionResult> GanTaiXe(int maDon, int maTX)
         {
-            var uid = int.Parse(User.FindFirst("UserId")!.Value);
-            var result = await _ws.GanTaiXeService(uid, maDon, maTX);
+            var result = await _ws.GanTaiXeService(GetUid(), maDon, maTX);
             if (!result.valid) return NotFound();
             TempData["Success"] = result.message;
             return RedirectToAction("Assign");
+        }
+
+        // ── YC4: Danh sách đơn giao thất bại ─────────────────────────────
+        public async Task<IActionResult> Failed()
+        {
+            var orders = await _ws.GetDonHangsGiaoThatBai();
+            return View(orders);
+        }
+
+        // ── YC4: Xử lý giao lại ───────────────────────────────────────────
+        [HttpPost]
+        public async Task<IActionResult> XuLyGiaoLai(int maDon)
+        {
+            var result = await _ws.XuLyGiaoLai(maDon, GetUid());
+            if (!result.valid)
+                TempData["Error"] = result.message;
+            else
+                TempData["Success"] = result.message;
+            return RedirectToAction("Failed");
         }
 
         public async Task<IActionResult> Stock()

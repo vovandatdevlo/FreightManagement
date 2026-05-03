@@ -36,17 +36,15 @@ namespace FreightManagement.Service
             return (tempOrders, tempWarehouses);
         }
 
-        // ── YC2b FIX: thêm UpdateOrder sau khi set TrangThai và MaQLK ──
         public async Task<(bool IsValidItem, string message)> NhanVaoKhoService(int uid, int madon, int makho)
         {
             var order = await _OrdersRepo.WarehouseGetDonHangsToNhanVaoKho(madon);
             var warehouse = await _WareRepo.WarehouseGetKhoHangToNhanVaoKho(makho);
-            if (order == null || warehouse == null)
-                return (false, "");
+            if (order == null || warehouse == null) return (false, "");
 
             order.TrangThai = "Đã vào kho";
             order.MaQLK = uid;
-            await _OrdersRepo.UpdateOrder(order);   // ← FIX: lưu vào DB
+            await _OrdersRepo.UpdateOrder(order);
 
             await _HTKRepo.WarehouseAdd(new HangTrongKho { MaDon = madon, MaKho = makho });
             await _hisRepo.DriverAddLichSuTrangThai(new LichSuTrangThai
@@ -66,22 +64,20 @@ namespace FreightManagement.Service
             var taixeDict = new Dictionary<int, List<User>>();
             foreach (var item in taiXeTheoKho)
             {
-                var listTX = await _UsersRepo.GetTaixeByKho(item.TinhKho);
+                var listTX = await _UsersRepo.GetTaixeByKho(item.TinhKho!);
                 taixeDict[item.MaDon] = listTX;
             }
             return (taixeDict, orders);
         }
 
-        // ── YC2c FIX: thêm UpdateOrder sau khi set MaTX ────────────
         public async Task<(bool valid, string message)> GanTaiXeService(int uid, int maDon, int maTX)
         {
             var order = await _OrdersRepo.WarehouseGetDonHangsToNhanVaoKho(maDon);
             var tx = await _UsersRepo.GetUserById(maTX);
-            if (order == null || tx == null)
-                return (false, "");
+            if (order == null || tx == null) return (false, "");
 
             order.MaTX = maTX;
-            await _OrdersRepo.UpdateOrder(order);   // ← FIX: lưu vào DB
+            await _OrdersRepo.UpdateOrder(order);
 
             await _hisRepo.DriverAddLichSuTrangThai(new LichSuTrangThai
             {
@@ -91,6 +87,30 @@ namespace FreightManagement.Service
                 CapNhatBoi = uid,
             });
             return (true, $"Đã gán tài xế {tx.HoTen} cho đơn #DH{maDon:D5} thành công!");
+        }
+
+        // ── YC4: Lấy danh sách đơn giao thất bại ────────────────────────────
+        public async Task<List<DonHang>> GetDonHangsGiaoThatBai()
+            => await _OrdersRepo.GetDonHangsByTrangThai("Giao thất bại");
+
+        // ── YC4: Quản lý kho xử lý giao lại → đưa về "Đã vào kho" ──────────
+        public async Task<(bool valid, string message)> XuLyGiaoLai(int maDon, int uid)
+        {
+            var order = await _OrdersRepo.WarehouseGetDonHangsToNhanVaoKho(maDon);
+            if (order == null || order.TrangThai != "Giao thất bại")
+                return (false, "Không tìm thấy đơn hàng hoặc trạng thái không hợp lệ.");
+
+            order.TrangThai = "Đã vào kho";
+            await _OrdersRepo.UpdateOrder(order);
+
+            await _hisRepo.DriverAddLichSuTrangThai(new LichSuTrangThai
+            {
+                MaDon = maDon,
+                TrangThai = "Đã vào kho",
+                GhiChu = "Quản lý kho xử lý giao lại, chờ gán tài xế mới",
+                CapNhatBoi = uid,
+            });
+            return (true, $"Đơn #DH{maDon:D5} đã được đặt lại trạng thái chờ giao.");
         }
 
         public async Task<List<HangTrongKho>> StockService()
