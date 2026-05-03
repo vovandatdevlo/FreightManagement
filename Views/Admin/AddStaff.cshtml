@@ -1,0 +1,111 @@
+﻿@* ===== Views/Admin/AddStaff.cshtml ===== *@
+@using FreightManagement.DTOs
+@model FreightManagement.DTOs.AddStaffDTO
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Thêm nhân viên";
+    var roles = ViewBag.Roles as IEnumerable<dynamic> ?? new List<dynamic>();
+}
+
+<div class="page-header">
+    <div><h4><i class="bi bi-person-plus-fill me-2"></i>Thêm nhân viên mới</h4><small>Tạo tài khoản cho Quản lý kho hoặc Tài xế</small></div>
+</div>
+
+@if (ViewBag.Error != null)
+{
+    <div style="background:#ffebee;border-left:4px solid #f44336;padding:12px;margin-bottom:20px;border-radius:4px">
+        <i class="bi bi-exclamation-triangle-fill" style="color:#f44336;margin-right:8px"></i>
+        <span style="color:#d32f2f">@ViewBag.Error</span>
+    </div>
+}
+
+<div style="max-width:600px;background:#fff;padding:30px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.1)">
+    <form asp-action="AddStaff" method="post" novalidate>
+        @Html.AntiForgeryToken()
+
+        @* Chức vụ *@
+        <div style="margin-bottom:20px">
+            <label style="display:block;margin-bottom:6px;font-weight:600;color:#333">
+                Chức vụ <span style="color:#f44336">*</span>
+            </label>
+            <select asp-for="RoleId" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:4px;font-size:.95rem" id="roleSelect">
+                <option value="">-- Chọn chức vụ --</option>
+                @if (roles != null)
+                {
+                    @foreach (var r in roles)
+                    {
+                        <option value="@r.RoleId">@r.Name</option>
+                    }
+                }
+            </select>
+            <span asp-validation-for="RoleId" style="color:#f44336;display:block;margin-top:4px;font-size:.85rem"></span>
+        </div>
+
+        @* Họ tên *@
+        <div style="margin-bottom:20px">
+            <label style="display:block;margin-bottom:6px;font-weight:600;color:#333">
+                Họ tên <span style="color:#f44336">*</span>
+            </label>
+            <input asp-for="HoTen" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:4px;font-size:.95rem" placeholder="Nguyễn Văn A" />
+            <span asp-validation-for="HoTen" style="color:#f44336;display:block;margin-top:4px;font-size:.85rem"></span>
+        </div>
+
+        @* Email *@
+        <div style="margin-bottom:20px">
+            <label style="display:block;margin-bottom:6px;font-weight:600;color:#333">
+                Email <span style="color:#f44336">*</span>
+            </label>
+            <input asp-for="Email" type="email" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:4px;font-size:.95rem" placeholder="example@gmail.com" />
+            <span asp-validation-for="Email" style="color:#f44336;display:block;margin-top:4px;font-size:.85rem"></span>
+        </div>
+
+        @* Mật khẩu *@
+        <div style="margin-bottom:20px">
+            <label style="display:block;margin-bottom:6px;font-weight:600;color:#333">
+                Mật khẩu <span style="color:#f44336">*</span>
+            </label>
+            <input asp-for="Password" type="password" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:4px;font-size:.95rem" placeholder="Tối thiểu 6 ký tự" />
+            <span asp-validation-for="Password" style="color:#f44336;display:block;margin-top:4px;font-size:.85rem"></span>
+        </div>
+
+        @* Số điện thoại *@
+        <div style="margin-bottom:20px">
+            <label style="display:block;margin-bottom:6px;font-weight:600;color:#333">Số điện thoại</label>
+            <input asp-for="SoDienThoai" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:4px;font-size:.95rem" placeholder="09xxxxxxxx" />
+        </div>
+
+        @* Địa chỉ *@
+        <div style="margin-bottom:20px">
+            <label style="display:block;margin-bottom:6px;font-weight:600;color:#333">
+                Địa chỉ / Tỉnh phụ trách
+                <span style="color:#888;font-weight:400;font-size:.85rem"> (Tài xế sẽ nhận đơn ở tỉnh này)</span>
+            </label>
+            <input asp-for="DiaChi" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:4px;font-size:.95rem" placeholder="Hà Nội / TP. Hồ Chí Minh ..." />
+        </div>
+
+        @* CCCD — chỉ hiện khi chọn Tài xế *@
+        <div style="margin-bottom:20px;display:none" id="cccdRow">
+            <label style="display:block;margin-bottom:6px;font-weight:600;color:#333">CCCD / CMND</label>
+            <input asp-for="CCCD" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:4px;font-size:.95rem" placeholder="Số CCCD" />
+            <small style="color:#888;display:block;margin-top:4px">Bắt buộc đối với Tài xế.</small>
+        </div>
+
+        @* Nút submit *@
+        <button type="submit" style="width:100%;padding:12px;background:#2e7d32;color:#fff;border:none;border-radius:4px;font-weight:600;font-size:.95rem;cursor:pointer;margin-top:10px">
+            <i class="bi bi-person-plus-fill me-1"></i> Thêm nhân viên
+        </button>
+        <a asp-action="Users" style="display:block;text-align:center;margin-top:10px;color:#2e7d32;text-decoration:none;font-size:.9rem">Quay lại danh sách</a>
+    </form>
+</div>
+
+<script>
+    const roleSelect = document.getElementById('roleSelect');
+    const cccdRow = document.getElementById('cccdRow');
+
+    function toggleCCCD() {
+        cccdRow.style.display = roleSelect.value === '4' ? 'block' : 'none';
+    }
+
+    roleSelect.addEventListener('change', toggleCCCD);
+    toggleCCCD();
+</script>

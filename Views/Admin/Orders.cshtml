@@ -1,38 +1,149 @@
 ﻿@* ===== Views/Admin/Orders.cshtml ===== *@
-@model IEnumerable<FreightManagement.Models.DonHang>
+@model List<FreightManagement.Models.DonHang>
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
     ViewData["Title"] = "Tất cả đơn hàng";
+    var trangThaiList  = ViewBag.TrangThaiList as List<string> ?? new();
+    int totalPages     = ViewBag.TotalPages;
+    int currentPage    = ViewBag.CurrentPage;
+    int totalCount     = ViewBag.TotalCount;
+    string? fTrangThai = ViewBag.FilterTrangThai;
+    string? fTuNgay    = ViewBag.FilterTuNgay;
+    string? fDenNgay   = ViewBag.FilterDenNgay;
+    string? fTuKhoa    = ViewBag.FilterTuKhoa;
 }
+
 <div class="page-header">
-    <div><h4><i class="bi bi-box-seam me-2"></i>Tất cả đơn hàng</h4><small>Tổng: @Model.Count() đơn hàng</small></div>
+    <div><h4><i class="bi bi-box-seam me-2"></i>Tất cả đơn hàng</h4><small>Tổng: @totalCount đơn hàng</small></div>
 </div>
+
+@* ── Form lọc ── *@
+<div style="background:#fff;padding:15px;margin-bottom:20px;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,0.08)">
+    <form method="get" asp-action="Orders">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr auto auto;gap:10px;align-items:end">
+            <div>
+                <label style="display:block;margin-bottom:4px;font-weight:600;font-size:.85rem;color:#333">Tìm kiếm</label>
+                <input type="text" name="tuKhoa" value="@fTuKhoa" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:4px;font-size:.9rem" placeholder="Mã / Tên / SĐT" />
+            </div>
+            <div>
+                <label style="display:block;margin-bottom:4px;font-weight:600;font-size:.85rem;color:#333">Trạng thái</label>
+                <select name="trangThai" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:4px;font-size:.9rem">
+                    <option value="">-- Tất cả --</option>
+                    @if (trangThaiList != null)
+                    {
+                        @foreach (var tt in trangThaiList)
+                        {
+                            @if (tt == fTrangThai)
+                            {
+                                <option value="@tt" selected>@tt</option>
+                            }
+                            else
+                            {
+                                <option value="@tt">@tt</option>
+                            }
+                        }
+                    }
+                </select>
+            </div>
+            <div>
+                <label style="display:block;margin-bottom:4px;font-weight:600;font-size:.85rem;color:#333">Từ ngày</label>
+                <input type="date" name="tuNgay" value="@fTuNgay" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:4px;font-size:.9rem" />
+            </div>
+            <div>
+                <label style="display:block;margin-bottom:4px;font-weight:600;font-size:.85rem;color:#333">Đến ngày</label>
+                <input type="date" name="denNgay" value="@fDenNgay" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:4px;font-size:.9rem" />
+            </div>
+            <button type="submit" style="background:#2e7d32;color:#fff;border:none;padding:8px 16px;border-radius:4px;cursor:pointer;font-weight:600;font-size:.9rem">
+                <i class="bi bi-search me-1"></i>Lọc
+            </button>
+            <a asp-action="Orders" style="background:#999;color:#fff;border:none;padding:8px 16px;border-radius:4px;cursor:pointer;font-weight:600;font-size:.9rem;text-decoration:none;display:block;text-align:center">
+                <i class="bi bi-x-lg me-1"></i>Xóa
+            </a>
+        </div>
+    </form>
+</div>
+
+@* ── Bảng đơn hàng ── *@
 <div class="data-table">
-    <table class="table">
-        <thead><tr><th>Mã đơn</th><th>Khách hàng</th><th>Người nhận</th><th>Địa chỉ nhận</th><th>Tài xế</th><th>Chi phí</th><th>Trạng thái</th><th>Ngày tạo</th></tr></thead>
-        <tbody>
-            @foreach (var d in Model)
-            {
-                var cls = d.TrangThai switch
-                {
-                    "Đang xử lý" => "badge-pending",
-                    "Đã vào kho" => "badge-warehouse",
-                    "Đang vận chuyển" => "badge-shipping",
-                    "Đã giao" => "badge-delivered",
-                    "Đã hủy" => "badge-cancelled",
-                    _ => "badge-pending"
-                };
+    @if (!Model.Any())
+    {
+        <div style="text-align:center;padding:30px;color:#999">
+            <i class="bi bi-info-circle me-2"></i>Không tìm thấy đơn hàng nào phù hợp.
+        </div>
+    }
+    else
+    {
+        <table class="table">
+            <thead>
                 <tr>
-                    <td><strong style="color:#2e7d32">#@d.MaDon.ToString("D5")</strong></td>
-                    <td><div style="font-weight:600">@d.KhachHang?.HoTen</div><small style="color:#999">@d.KhachHang?.SoDienThoai</small></td>
-                    <td><div style="font-weight:500">@d.TenNguoiNhan</div><small style="color:#999">@d.SdtNguoiNhan</small></td>
-                    <td><small>@d.DiaChiNhan</small></td>
-                    <td><small>@(d.TaiXe?.HoTen ?? "Chưa gán")</small></td>
-                    <td><strong>@d.ChiPhi.ToString("N0") ₫</strong></td>
-                    <td><span class="badge-status @cls">@d.TrangThai</span></td>
-                    <td><small style="color:#999">@d.NgayTao.ToString("dd/MM/yy HH:mm")</small></td>
+                    <th>Mã đơn</th>
+                    <th>Khách hàng</th>
+                    <th>Người nhận</th>
+                    <th>Địa chỉ nhận</th>
+                    <th>Tài xế</th>
+                    <th>Chi phí</th>
+                    <th>Trạng thái</th>
+                    <th>Ngày tạo</th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var d in Model)
+                {
+                    var cls = d.TrangThai switch
+                    {
+                        "Đang xử lý" => "badge-pending",
+                        "Đã vào kho" => "badge-warehouse",
+                        "Đang vận chuyển" => "badge-shipping",
+                        "Đã giao" => "badge-delivered",
+                        "Giao thất bại" => "badge-failed",
+                        "Đã hủy" => "badge-cancelled",
+                        _ => "badge-pending"
+                    };
+                    <tr>
+                        <td><strong style="color:#2e7d32">#@d.MaDon.ToString("D5")</strong></td>
+                        <td><div style="font-weight:600">@d.KhachHang?.HoTen</div><small style="color:#999">@d.KhachHang?.SoDienThoai</small></td>
+                        <td><div style="font-weight:500">@d.TenNguoiNhan</div><small style="color:#999">@d.SdtNguoiNhan</small></td>
+                        <td><small>@d.DiaChiNhan</small></td>
+                        <td><small>@(d.TaiXe?.HoTen ?? "Chưa gán")</small></td>
+                        <td><strong>@d.ChiPhi.ToString("N0") ₫</strong></td>
+                        <td><span class="badge-status @cls">@d.TrangThai</span></td>
+                        <td><small style="color:#999">@d.NgayTao.ToString("dd/MM/yy HH:mm")</small></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        @* ── Phân trang ── *@
+        @if (totalPages > 1)
+        {
+            <div style="display:flex;justify-content:center;align-items:center;gap:6px;margin-top:20px;flex-wrap:wrap">
+                @if (currentPage > 1)
+                {
+                    <a href="@Url.Action("Orders", new { trangThai = fTrangThai, tuNgay = fTuNgay, denNgay = fDenNgay, tuKhoa = fTuKhoa, page = 1 })" style="padding:6px 10px;border:1px solid #ddd;border-radius:4px;text-decoration:none;color:#333">&laquo;</a>
+                    <a href="@Url.Action("Orders", new { trangThai = fTrangThai, tuNgay = fTuNgay, denNgay = fDenNgay, tuKhoa = fTuKhoa, page = currentPage - 1 })" style="padding:6px 10px;border:1px solid #ddd;border-radius:4px;text-decoration:none;color:#333">Prev</a>
+                }
+
+                @for (int i = Math.Max(1, currentPage - 2); i <= Math.Min(totalPages, currentPage + 2); i++)
+                {
+                    @if (i == currentPage)
+                    {
+                        <span style="padding:6px 10px;border-radius:4px;background:#2e7d32;color:#fff;font-weight:600">@i</span>
+                    }
+                    else
+                    {
+                        <a href="@Url.Action("Orders", new { trangThai = fTrangThai, tuNgay = fTuNgay, denNgay = fDenNgay, tuKhoa = fTuKhoa, page = i })" style="padding:6px 10px;border:1px solid #ddd;border-radius:4px;text-decoration:none;color:#333">@i</a>
+                    }
+                }
+
+                @if (currentPage < totalPages)
+                {
+                    <a href="@Url.Action("Orders", new { trangThai = fTrangThai, tuNgay = fTuNgay, denNgay = fDenNgay, tuKhoa = fTuKhoa, page = currentPage + 1 })" style="padding:6px 10px;border:1px solid #ddd;border-radius:4px;text-decoration:none;color:#333">Next</a>
+                    <a href="@Url.Action("Orders", new { trangThai = fTrangThai, tuNgay = fTuNgay, denNgay = fDenNgay, tuKhoa = fTuKhoa, page = totalPages })" style="padding:6px 10px;border:1px solid #ddd;border-radius:4px;text-decoration:none;color:#333">&raquo;</a>
+                }
+            </div>
+            <p style="text-align:center;color:#999;font-size:.85rem;margin-top:12px">
+                Trang @currentPage / @totalPages &nbsp;|&nbsp; Tổng @totalCount đơn
+            </p>
+        }
+    }
 </div>
