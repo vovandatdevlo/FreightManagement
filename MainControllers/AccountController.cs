@@ -1,22 +1,23 @@
-﻿using FreightManagement.Data;
-using FreightManagement.Filters;
+﻿using FreightManagement.DTOs;
 using FreightManagement.Models;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Security.Cryptography;
-using System.Text;
 using FreightManagement.Service;
-using FreightManagement.DTOs;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace FreightManagement.MainControllers
 {
     public class AccountController : Controller
     {
         private readonly AccountService _acc;
-        public AccountController(AccountService acc)
+        public AccountController(AccountService acc) 
         {
-            _acc = acc;
+            _acc = acc; 
         }
+
+        // ── ĐĂNG NHẬP ──────────────────────────────────────────────
         public IActionResult Login() => View();
 
         [HttpPost]
@@ -36,14 +37,25 @@ namespace FreightManagement.MainControllers
                 return View();
             }
 
-            // Lưu thông tin vào Session
-            HttpContext.Session.SetInt32("UserId", user.UserId);
-            HttpContext.Session.SetString("HoTen", user.HoTen);
-            HttpContext.Session.SetString("Email", user.Email);
-            HttpContext.Session.SetString("RoleName", user.Role.RoleName);
-            HttpContext.Session.SetInt32("RoleId", user.RoleId);
+            // Tạo Claims cho Cookie Authentication
+            var claims = new List<Claim>
+            {
+                new Claim("UserId",   user.UserId.ToString()),
+                new Claim("HoTen",    user.HoTen),
+                new Claim("Email",    user.Email),
+                new Claim(ClaimTypes.Role,  user.Role.RoleName),
+                new Claim("RoleId",   user.RoleId.ToString()),
+                new Claim(ClaimTypes.Name,  user.Email),
+            };
 
-            // Điều hướng theo role
+            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var principal = new ClaimsPrincipal(identity);
+
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                principal,
+                new AuthenticationProperties { IsPersistent = true });
+
             return user.Role.RoleName switch
             {
                 "Admin" => RedirectToAction("Index", "Admin"),
@@ -54,15 +66,12 @@ namespace FreightManagement.MainControllers
             };
         }
 
-        // --------------------------------------------------
-        // ĐĂNG KÝ (chỉ cho KhachHang tự đăng ký)
-        // --------------------------------------------------
+        // ── ĐĂNG KÝ ────────────────────────────────────────────────
         public IActionResult Register() => View();
 
         [HttpPost]
         public async Task<IActionResult> Register(AccountRegisterDTO obj)
         {
-            
             if (obj.password != obj.confirmPassword)
             {
                 ViewBag.Error = "Mật khẩu xác nhận không khớp.";
@@ -82,64 +91,42 @@ namespace FreightManagement.MainControllers
                 PasswordHash = obj.password,
                 SoDienThoai = obj.soDienThoai,
                 DiaChi = obj.diaChi,
-                RoleId = 2  // KhachHang
+                RoleId = 2 // KhachHang
             };
 
             await _acc.AddUser(user);
-
             TempData["Success"] = "Đăng ký thành công! Vui lòng đăng nhập.";
             return RedirectToAction("Login");
         }
 
-        // --------------------------------------------------
-        // ĐĂNG XUẤT
-        // --------------------------------------------------
-        public IActionResult Logout()
+        // ── ĐĂNG XUẤT ──────────────────────────────────────────────
+        public async Task<IActionResult> Logout()
         {
-            HttpContext.Session.Clear();
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("Login");
         }
 
-        // --------------------------------------------------
-        // HELPER: Hash mật khẩu bằng SHA256
-        // Ghi chú: Thực tế nên dùng BCrypt.Net-Next (an toàn hơn)
-        //   Install-Package BCrypt.Net-Next
-        //   BCrypt.Net.BCrypt.HashPassword(password)
-        //   BCrypt.Net.BCrypt.Verify(password, hash)
-        // --------------------------------------------------
-        //private static string HashPassword(string password)
-        //{
-        //    // service
-        //    using var sha = SHA256.Create();
-        //    var bytes = Encoding.UTF8.GetBytes(password);
-        //    var hash = sha.ComputeHash(bytes);
-        //    return Convert.ToHexString(hash);
-        //}
+        // ── ACCESS DENIED ──────────────────────────────────────────
+        public IActionResult AccessDenied() => View();
 
-        // ── XEM THÔNG TIN CÁ NHÂN ──────────────────────────────────────────
-        [RequireLogin]
+        // ── THÔNG TIN CÁ NHÂN ──────────────────────────────────────
+        [Authorize]
         public async Task<IActionResult> Profile()
         {
-            var userId = HttpContext.Session.GetInt32("UserId")!.Value;
-
+            var userId = int.Parse(User.FindFirst("UserId")!.Value);
             var user = await _acc.GetUserByRoleAndId(userId);
-
             if (_acc.IsNullObject(user)) return RedirectToAction("Login");
             return View(user);
         }
 
-        // ── CẬP NHẬT THÔNG TIN CÁ NHÂN ─────────────────────────────────────
+        // ── CẬP NHẬT THÔNG TIN ─────────────────────────────────────
         [HttpPost]
-        [RequireLogin]
+        [Authorize]
         public async Task<IActionResult> UpdateProfile(UpdateProfileDTO obj)
         {
-            var userId = HttpContext.Session.GetInt32("UserId")!.Value;
-
+            var userId = int.Parse(User.FindFirst("UserId")!.Value);
             var user = await _acc.GetUserById(userId);
-
             if (_acc.IsNullObject(user)) return RedirectToAction("Login");
-
-            // Validate họ tên không được rỗng
 
             if (_acc.IsEmptyHoTen(obj.hoTen))
             {
@@ -148,42 +135,30 @@ namespace FreightManagement.MainControllers
                 return View("Profile", u);
             }
 
-            // Cập nhật thông tin
-
-            // CCCD chỉ cập nhật cho TaiXe
-            var roleName = HttpContext.Session.GetString("RoleName");
-
+            var roleName = User.FindFirst(ClaimTypes.Role)?.Value;
             await _acc.UpdateInFor(roleName, user, obj);
-
-            // Cập nhật tên trong Session
-            HttpContext.Session.SetString("HoTen", user.HoTen);
-
             TempData["Success"] = "Cập nhật thông tin thành công!";
             return RedirectToAction("Profile");
         }
 
-        // ── XEM ĐỔI MẬT KHẨU ──────────────────────────────────────────────
-        [RequireLogin]
+        // ── ĐỔI MẬT KHẨU ───────────────────────────────────────────
+        [Authorize]
         public IActionResult ChangePassword() => View();
 
-        // ── ĐỔI MẬT KHẨU ───────────────────────────────────────────────────
         [HttpPost]
-        [RequireLogin]
+        [Authorize]
         public async Task<IActionResult> ChangePassword(ChangePasswordDTO obj)
         {
-            var userId = HttpContext.Session.GetInt32("UserId")!.Value;
+            var userId = int.Parse(User.FindFirst("UserId")!.Value);
             var result = await _acc.ChangePasswordMessage(userId, obj);
             if (!result.success)
             {
                 ViewBag.Error = result.message;
                 return View();
             }
-            else
-            {
-                TempData["Success"] = result.message;
-                HttpContext.Session.Clear();
-                return RedirectToAction("Login");
-            }
+            TempData["Success"] = result.message;
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return RedirectToAction("Login");
         }
     }
 }

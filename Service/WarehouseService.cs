@@ -12,7 +12,9 @@ namespace FreightManagement.Service
         private readonly ILichSuTrangThaisRepository _hisRepo;
         private readonly IHangTrongKhosRepository _HTKRepo;
         private readonly IUsersRepository _UsersRepo;
-        public WarehouseService(IDonHangsRepository OrdersRepo, IKhoHangsRepository WareRepo, ILichSuTrangThaisRepository hisRepo, IHangTrongKhosRepository HTKRepo, IUsersRepository UsersRepo)
+
+        public WarehouseService(IDonHangsRepository OrdersRepo, IKhoHangsRepository WareRepo,
+            ILichSuTrangThaisRepository hisRepo, IHangTrongKhosRepository HTKRepo, IUsersRepository UsersRepo)
         {
             _OrdersRepo = OrdersRepo;
             _WareRepo = WareRepo;
@@ -20,33 +22,33 @@ namespace FreightManagement.Service
             _HTKRepo = HTKRepo;
             _UsersRepo = UsersRepo;
         }
+
         public async Task<int> GetDonHangsCountByTrangThai(string trangthai)
-        {
-            return await _OrdersRepo.GetDonHangsCountByTrangThai(trangthai);
-        }
+            => await _OrdersRepo.GetDonHangsCountByTrangThai(trangthai);
+
         public async Task<int> WarehouseGetDonHangsCountByTrangThaiAndNgayCapNhat(string trangthai)
-        {
-            return await _OrdersRepo.WarehouseGetDonHangsCountByTrangThaiAndNgayCapNhat(trangthai);
-        }
+            => await _OrdersRepo.WarehouseGetDonHangsCountByTrangThaiAndNgayCapNhat(trangthai);
+
         public async Task<(List<DonHang> orders, List<KhoHang> Warehouses)> IncomingService(string trangthai, int uid)
         {
             var tempOrders = await _OrdersRepo.WarehouseGetDonHangsToIncoming(trangthai);
             var tempWarehouses = await _WareRepo.WarehouseGetKhoHangToIncoming(uid);
             return (tempOrders, tempWarehouses);
         }
+
+        // ── YC2b FIX: thêm UpdateOrder sau khi set TrangThai và MaQLK ──
         public async Task<(bool IsValidItem, string message)> NhanVaoKhoService(int uid, int madon, int makho)
         {
             var order = await _OrdersRepo.WarehouseGetDonHangsToNhanVaoKho(madon);
             var warehouse = await _WareRepo.WarehouseGetKhoHangToNhanVaoKho(makho);
             if (order == null || warehouse == null)
                 return (false, "");
+
             order.TrangThai = "Đã vào kho";
             order.MaQLK = uid;
-            await _HTKRepo.WarehouseAdd(new HangTrongKho
-            {
-                MaDon = madon,
-                MaKho = makho,
-            });
+            await _OrdersRepo.UpdateOrder(order);   // ← FIX: lưu vào DB
+
+            await _HTKRepo.WarehouseAdd(new HangTrongKho { MaDon = madon, MaKho = makho });
             await _hisRepo.DriverAddLichSuTrangThai(new LichSuTrangThai
             {
                 MaDon = madon,
@@ -56,11 +58,12 @@ namespace FreightManagement.Service
             });
             return (true, $"Đã nhập đơn #DH{madon:D5} vào {warehouse.TenKho}!");
         }
+
         public async Task<(Dictionary<int, List<User>>, List<DonHang> orders)> AssignService()
         {
             var orders = await _OrdersRepo.WarehouseGetDonHangsToAssignOrders("Đã vào kho");
             var taiXeTheoKho = await _OrdersRepo.WarehouseGetDonHangsToAssignTaixetheokho("Đã vào kho");
-            Dictionary<int, List<User>> taixeDict = new Dictionary<int, List<User>>();
+            var taixeDict = new Dictionary<int, List<User>>();
             foreach (var item in taiXeTheoKho)
             {
                 var listTX = await _UsersRepo.GetTaixeByKho(item.TinhKho);
@@ -68,29 +71,32 @@ namespace FreightManagement.Service
             }
             return (taixeDict, orders);
         }
+
+        // ── YC2c FIX: thêm UpdateOrder sau khi set MaTX ────────────
         public async Task<(bool valid, string message)> GanTaiXeService(int uid, int maDon, int maTX)
         {
             var order = await _OrdersRepo.WarehouseGetDonHangsToNhanVaoKho(maDon);
             var tx = await _UsersRepo.GetUserById(maTX);
             if (order == null || tx == null)
                 return (false, "");
+
             order.MaTX = maTX;
+            await _OrdersRepo.UpdateOrder(order);   // ← FIX: lưu vào DB
+
             await _hisRepo.DriverAddLichSuTrangThai(new LichSuTrangThai
             {
                 MaDon = maDon,
                 TrangThai = "Đã vào kho",
                 GhiChu = $"Đã gán tài xế: {tx.HoTen}.",
-                CapNhatBoi = uid
+                CapNhatBoi = uid,
             });
-            return (true, $"Đã gán tài xế {tx.HoTen} cho đơn #DH{maDon:D5} thành công !");
+            return (true, $"Đã gán tài xế {tx.HoTen} cho đơn #DH{maDon:D5} thành công!");
         }
+
         public async Task<List<HangTrongKho>> StockService()
-        {
-            return await _HTKRepo.WarehouseGetToStock();
-        }
+            => await _HTKRepo.WarehouseGetToStock();
+
         public async Task<List<HangTrongKho>> ExportedService()
-        {
-            return await _HTKRepo.WarehouseGetToExported();
-        }
+            => await _HTKRepo.WarehouseGetToExported();
     }
 }

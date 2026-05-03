@@ -433,10 +433,10 @@
             Vận<span>Chuyển</span>PBL3
         </a>
         <div class="user-info">
-            <div class="avatar">@(Context.Session.GetString("HoTen")?.Substring(0, 1).ToUpper() ?? "U")</div>
+            <div class="avatar">@((User.FindFirst("HoTen")?.Value ?? "U").Substring(0, 1).ToUpper())</div>
             <div>
-                <div style="color:#fff;font-weight:600;font-size:.88rem">@Context.Session.GetString("HoTen")</div>
-                <div style="font-size:.75rem">@Context.Session.GetString("RoleName")</div>
+                <div style="color:#fff;font-weight:600;font-size:.88rem">@User.FindFirst("HoTen")?.Value</div>
+                <div style="font-size:.75rem">@User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value</div>
             </div>
             <a href="/Account/Logout" class="logout-btn"><i class="bi bi-box-arrow-right"></i> Đăng xuất</a>
         </div>
@@ -445,7 +445,7 @@
     <!-- SIDEBAR -->
     <div class="sidebar">
         @{
-            var role = Context.Session.GetString("RoleName");
+            var role = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
             var path = Context.Request.Path.Value ?? "";
         }
 

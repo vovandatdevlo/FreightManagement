@@ -1,5 +1,4 @@
 ﻿using FreightManagement.Data;
-using FreightManagement.Filters;
 using FreightManagement.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;

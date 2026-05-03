@@ -1,20 +1,17 @@
-﻿using FreightManagement.Data;
-using FreightManagement.Filters;
-using FreightManagement.Models;
+﻿using FreightManagement.DTOs;
 using FreightManagement.Service;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using FreightManagement.DTOs;
 
 namespace FreightManagement.MainControllers
 {
-    [RequireLogin("KhachHang")]
+    [Authorize(Roles = "KhachHang")]
     public class OrdersController : Controller
     {
         private readonly OrdersService _os;
         public OrdersController(OrdersService os)
         {
-            _os = os;
+            _os = os; 
         }
 
         private static readonly List<string> Provinces = new()
@@ -33,16 +30,15 @@ namespace FreightManagement.MainControllers
 
         public async Task<IActionResult> Index()
         {
-            var userId = HttpContext.Session.GetInt32("UserId")!.Value;
+            var userId = int.Parse(User.FindFirst("UserId")!.Value);
             var orders = await _os.OrdersGetDonHangsByMaKHAndDescending(userId);
             return View(orders);
         }
 
         public async Task<IActionResult> Create()
         {
-            var userId = HttpContext.Session.GetInt32("UserId")!.Value;
+            var userId = int.Parse(User.FindFirst("UserId")!.Value);
             var user = await _os.GetUserById(userId);
-
             ViewBag.HoTen = user?.HoTen;
             ViewBag.SoDienThoai = user?.SoDienThoai;
             ViewBag.DiaChi = user?.DiaChi;
@@ -53,7 +49,7 @@ namespace FreightManagement.MainControllers
         [HttpPost]
         public async Task<IActionResult> Create(CreateOrderDTO obj)
         {
-            var userId = HttpContext.Session.GetInt32("UserId")!.Value;
+            var userId = int.Parse(User.FindFirst("UserId")!.Value);
             var result = await _os.CreateOrderService(userId, obj);
             TempData["Success"] = result;
             return RedirectToAction("Index");
@@ -61,27 +57,21 @@ namespace FreightManagement.MainControllers
 
         public async Task<IActionResult> Detail(int id)
         {
-            var userId = HttpContext.Session.GetInt32("UserId")!.Value;
+            var userId = int.Parse(User.FindFirst("UserId")!.Value);
             var result = await _os.DetailOrderService(id, userId);
-            if (!result.IsValidOrder)
-                return NotFound();
+            if (!result.IsValidOrder) return NotFound();
             return View(result.order);
         }
 
         public async Task<IActionResult> Cancel(int id)
         {
-            var userId = HttpContext.Session.GetInt32("UserId")!.Value;
+            var userId = int.Parse(User.FindFirst("UserId")!.Value);
             var result = await _os.CancelService(id, userId);
             if (!result.IsValidOrder)
-            {
                 TempData["Error"] = result.message;
-                return RedirectToAction("Index");
-            }
             else
-            {
                 TempData["Success"] = result.message;
-                return RedirectToAction("Index");
-            }
+            return RedirectToAction("Index");
         }
     }
 }

@@ -8,21 +8,17 @@ namespace FreightManagement.MainControllers
     {
         public IActionResult Index()
         {
-            // Nếu đã đăng nhập, redirect về dashboard tương ứng
-            var role = HttpContext.Session.GetString("RoleName");
-            if (role != null)
-            {
-                return role switch
-                {
-                    "Admin" => RedirectToAction("Index", "Admin"),
-                    "KhachHang" => RedirectToAction("Index", "Orders"),
-                    "QuanLyKho" => RedirectToAction("Index", "Warehouse"),
-                    "TaiXe" => RedirectToAction("Index", "Driver"),
-                    _ => View()
-                };
-            }
-            return View();
-        }
+            if (!User.Identity!.IsAuthenticated) return View();
 
+            var role = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
+            return role switch
+            {
+                "Admin" => RedirectToAction("Index", "Admin"),
+                "KhachHang" => RedirectToAction("Index", "Orders"),
+                "QuanLyKho" => RedirectToAction("Index", "Warehouse"),
+                "TaiXe" => RedirectToAction("Index", "Driver"),
+                _ => View()
+            };
+        }
     }
 }

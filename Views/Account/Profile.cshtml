@@ -2,7 +2,7 @@
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
     ViewData["Title"] = "Thông tin cá nhân";
-    var role = Context.Session.GetString("RoleName");
+    var role = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
 }
 
 <div class="page-header">

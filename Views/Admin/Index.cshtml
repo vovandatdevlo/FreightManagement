@@ -6,7 +6,7 @@
 <div class="page-header">
     <div>
         <h4><i class="bi bi-grid-1x2 me-2"></i>Dashboard Quản trị</h4>
-        <small>Xin chào, <strong>@Context.Session.GetString("HoTen")</strong> — Tổng quan hệ thống</small>
+        <small>Xin chào, <strong>@User.FindFirst("HoTen")?.Value</strong> — Tổng quan hệ thống</small>
     </div>
     <span style="background:#e8f5e9;color:#2e7d32;padding:6px 16px;border-radius:20px;font-size:.82rem;font-weight:600">
         <i class="bi bi-circle-fill me-1" style="font-size:.5rem;color:#4caf50"></i> Hệ thống đang hoạt động
