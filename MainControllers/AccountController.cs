@@ -128,7 +128,7 @@ namespace FreightManagement.MainControllers
             var user = await _acc.GetUserById(userId);
             if (_acc.IsNullObject(user)) return RedirectToAction("Login");
 
-            if (_acc.IsEmptyHoTen(obj.hoTen))
+            if (_acc.IsEmptyHoTen(obj.hoTen!))
             {
                 var u = await _acc.GetFirstUserById(userId);
                 ViewBag.Error = "Họ tên không được để trống.";
@@ -136,7 +136,7 @@ namespace FreightManagement.MainControllers
             }
 
             var roleName = User.FindFirst(ClaimTypes.Role)?.Value;
-            await _acc.UpdateInFor(roleName, user, obj);
+            await _acc.UpdateInFor(roleName!, user, obj);
             TempData["Success"] = "Cập nhật thông tin thành công!";
             return RedirectToAction("Profile");
         }
