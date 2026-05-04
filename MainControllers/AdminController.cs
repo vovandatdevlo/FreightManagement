@@ -9,16 +9,18 @@ namespace FreightManagement.MainControllers
     public class AdminController : Controller
     {
         private readonly AdminService _ads;
-        public AdminController(AdminService ads) { _ads = ads; }
 
-        // Danh sách trạng thái dùng cho dropdown filter
         private static readonly List<string> TrangThaiList = new()
         {
             "Đang xử lý", "Đã vào kho", "Đang vận chuyển",
             "Đã giao", "Giao thất bại", "Đã hủy"
         };
 
-        // ── Dashboard ────────────────────────────────────────────────────────
+        public AdminController(AdminService ads)
+        {
+            _ads = ads;
+        }
+
         public async Task<IActionResult> Index()
         {
             ViewBag.TongDonHang = await _ads.GetDonHangsCount();
@@ -33,7 +35,6 @@ namespace FreightManagement.MainControllers
             return View();
         }
 
-        // ── Users ────────────────────────────────────────────────────────────
         public async Task<IActionResult> Users()
         {
             var users = await _ads.GetUsersList();
@@ -43,11 +44,11 @@ namespace FreightManagement.MainControllers
         public async Task<IActionResult> ToggleUser(int id)
         {
             var result = await _ads.ToggleAccountService(id);
-            if (result.IsValidUser) TempData["Success"] = result.message;
+            if (result.IsValidUser)
+                TempData["Success"] = result.message;
             return RedirectToAction("Users");
         }
 
-        // ── YC3: Thêm nhân viên ──────────────────────────────────────────────
         [HttpGet]
         public IActionResult AddStaff()
         {
@@ -88,7 +89,6 @@ namespace FreightManagement.MainControllers
             return RedirectToAction("Users");
         }
 
-        // ── YC5: Orders — filter + phân trang ───────────────────────────────
         [HttpGet]
         public async Task<IActionResult> Orders(
             string? trangThai, string? tuNgay, string? denNgay,
@@ -96,14 +96,12 @@ namespace FreightManagement.MainControllers
         {
             const int pageSize = 20;
             var result = await _ads.GetFullOrdersFiltered(trangThai, tuNgay, denNgay, tuKhoa, page, pageSize);
-
             int totalPages = (int)Math.Ceiling(result.totalCount / (double)pageSize);
 
             ViewBag.TrangThaiList = TrangThaiList;
             ViewBag.TotalPages = totalPages;
             ViewBag.CurrentPage = page;
             ViewBag.TotalCount = result.totalCount;
-            // Giữ giá trị filter để hiển thị lại trên form
             ViewBag.FilterTrangThai = trangThai;
             ViewBag.FilterTuNgay = tuNgay;
             ViewBag.FilterDenNgay = denNgay;
@@ -112,14 +110,33 @@ namespace FreightManagement.MainControllers
             return View(result.items);
         }
 
-        // ── Warehouses ───────────────────────────────────────────────────────
         public async Task<IActionResult> Warehouses()
         {
             var khos = await _ads.AdminGetKhoHangToWarehouses();
             return View(khos);
         }
 
-        // ── Revenue ──────────────────────────────────────────────────────────
+        // ── GÁN KHO CHO QUẢN LÝ KHO ────────────────────────────────────────
+        [HttpGet]
+        public async Task<IActionResult> AssignWarehouse()
+        {
+            var khos = await _ads.AdminGetKhoHangToWarehouses();
+            var qlks = await _ads.GetAllQuanLyKho();
+            ViewBag.QuanLyKhos = qlks;
+            return View(khos);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AssignWarehouse(int maKho, int maQLK)
+        {
+            var result = await _ads.AssignKhoToQuanLyKho(maKho, maQLK);
+            if (result.success)
+                TempData["Success"] = result.message;
+            else
+                TempData["Error"] = result.message;
+            return RedirectToAction("AssignWarehouse");
+        }
+
         public async Task<IActionResult> Revenue()
         {
             var data = await _ads.AdminGetToRevenue();

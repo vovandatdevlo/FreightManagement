@@ -78,13 +78,15 @@ namespace FreightManagement.MainControllers
 
         public async Task<IActionResult> Stock()
         {
-            var items = await _ws.StockService();
+            var uid = GetUid();  
+            var items = await _ws.StockService(uid); 
             return View(items);
         }
 
         public async Task<IActionResult> Exported()
         {
-            var items = await _ws.ExportedService();
+            var uid = GetUid();  
+            var items = await _ws.ExportedService(uid);  
             return View(items);
         }
     }

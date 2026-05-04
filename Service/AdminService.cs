@@ -25,14 +25,15 @@ namespace FreightManagement.Service
 
         // ── Dashboard ────────────────────────────────────────────────────────
         public async Task<int> GetDonHangsCount()
-        { 
+        {
             return await _OrderRepo.GetDonHangsCount();
         }
 
         public async Task<int> GetDonHangsCountByTrangThai(string trangthai)
-        { 
+        {
             return await _OrderRepo.GetDonHangsCountByTrangThai(trangthai);
         }
+
         public async Task<int> GetUsersCountByRoleId(int roleId)
         {
             return await _UsersRepo.GetUsersCountByRoleId(roleId);
@@ -66,14 +67,15 @@ namespace FreightManagement.Service
             {
                 user.TrangThai = user.TrangThai == "HoatDong" ? "BiKhoa" : "HoatDong";
                 await _UsersRepo.UpdateUser(user);
-                return user.TrangThai == "HoatDong"
-                    ? (true, $"Đã mở khóa tài khoản {user.HoTen}.")
-                    : (true, $"Đã khóa tài khoản {user.HoTen}.");
+                if (user.TrangThai == "HoatDong")
+                    return (true, $"Đã mở khóa tài khoản {user.HoTen}.");
+                else
+                    return (true, $"Đã khóa tài khoản {user.HoTen}.");
             }
             return (false, "");
         }
 
-        // ── YC3: Thêm nhân viên (TaiXe=4 / QuanLyKho=3) ────────────────────
+        // ── YC3: Thêm nhân viên ─────────────────────────────────────────────
         public async Task<(bool success, string message)> AddStaffService(AddStaffDTO dto)
         {
             if (dto.RoleId != 3 && dto.RoleId != 4)
@@ -107,7 +109,7 @@ namespace FreightManagement.Service
             return Convert.ToHexString(hash);
         }
 
-        // ── YC5: Orders có filter + phân trang ──────────────────────────────
+        // ── YC5: Orders filter + phân trang ─────────────────────────────────
         public async Task<(List<DonHang> items, int totalCount)> GetFullOrdersFiltered(
             string? trangThai, string? tuNgay, string? denNgay,
             string? tuKhoa, int page, int pageSize = 20)
@@ -119,6 +121,32 @@ namespace FreightManagement.Service
         public async Task<List<KhoHang>> AdminGetKhoHangToWarehouses()
         {
             return await _WareRepo.AdminGetKhoHangToWarehouses();
+        }
+
+        // ── GÁN KHO CHO QUẢN LÝ KHO ─────────────────────────────────────────
+        public async Task<List<User>> GetAllQuanLyKho()
+        {
+            return await _WareRepo.GetAllQuanLyKho();
+        }
+
+        public async Task<KhoHang> GetKhoHangById(int maKho)
+        {
+            return await _WareRepo.GetKhoHangById(maKho);
+        }
+
+        public async Task<(bool success, string message)> AssignKhoToQuanLyKho(int maKho, int maQLK)
+        {
+            var kho = await _WareRepo.GetKhoHangById(maKho);
+            if (kho == null)
+                return (false, "Không tìm thấy kho hàng.");
+
+            var qlk = await _UsersRepo.GetUserById(maQLK);
+            if (qlk == null || qlk.RoleId != 3)
+                return (false, "Quản lý kho không tồn tại hoặc không hợp lệ.");
+
+            kho.MaQLK = maQLK;
+            await _WareRepo.UpdateKhoHang(kho);
+            return (true, $"Đã gán kho {kho.TenKho} cho {qlk.HoTen} thành công!");
         }
 
         // ── Revenue ──────────────────────────────────────────────────────────

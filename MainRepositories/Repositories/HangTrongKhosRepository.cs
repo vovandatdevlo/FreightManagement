@@ -35,5 +35,28 @@ namespace FreightManagement.MainRepositories.Repository
                 .OrderByDescending(h => h.ThoiGianXuatKho)
                 .ToListAsync();
         }
+        public async Task<List<HangTrongKho>> GetStockByMaQLK(int maQLK)
+        {
+            return await _db.HangTrongKhos
+                .Include(h => h.KhoHang)
+                .Include(h => h.DonHang).ThenInclude(d => d!.KhachHang)
+                .Include(h => h.DonHang).ThenInclude(d => d!.TaiXe)
+                .Where(h => h.KhoHang!.MaQLK == maQLK) 
+                .Where(h => h.ThoiGianXuatKho == null)  
+                .OrderBy(h => h.ThoiGianVaoKho)
+                .ToListAsync();
+        }
+
+        public async Task<List<HangTrongKho>> GetExportedByMaQLK(int maQLK)
+        {
+            return await _db.HangTrongKhos
+                .Include(h => h.KhoHang)
+                .Include(h => h.DonHang).ThenInclude(d => d!.KhachHang)
+                .Include(h => h.DonHang).ThenInclude(d => d!.TaiXe)
+                .Where(h => h.KhoHang!.MaQLK == maQLK)  
+                .Where(h => h.ThoiGianXuatKho != null) 
+                .OrderByDescending(h => h.ThoiGianXuatKho)
+                .ToListAsync();
+        }
     }
 }

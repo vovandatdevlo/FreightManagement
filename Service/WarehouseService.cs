@@ -24,15 +24,20 @@ namespace FreightManagement.Service
         }
 
         public async Task<int> GetDonHangsCountByTrangThai(string trangthai)
-            => await _OrdersRepo.GetDonHangsCountByTrangThai(trangthai);
+        {
+            return await _OrdersRepo.GetDonHangsCountByTrangThai(trangthai);
+        }
 
         public async Task<int> WarehouseGetDonHangsCountByTrangThaiAndNgayCapNhat(string trangthai)
-            => await _OrdersRepo.WarehouseGetDonHangsCountByTrangThaiAndNgayCapNhat(trangthai);
+        {
+            return await _OrdersRepo.WarehouseGetDonHangsCountByTrangThaiAndNgayCapNhat(trangthai);
+        }
 
         public async Task<(List<DonHang> orders, List<KhoHang> Warehouses)> IncomingService(string trangthai, int uid)
         {
             var tempOrders = await _OrdersRepo.WarehouseGetDonHangsToIncoming(trangthai);
-            var tempWarehouses = await _WareRepo.WarehouseGetKhoHangToIncoming(uid);
+            // THAY ĐỔI: Chỉ lấy kho của quản lý kho này
+            var tempWarehouses = await _WareRepo.GetKhoHangByMaQLK(uid);
             return (tempOrders, tempWarehouses);
         }
 
@@ -40,7 +45,13 @@ namespace FreightManagement.Service
         {
             var order = await _OrdersRepo.WarehouseGetDonHangsToNhanVaoKho(madon);
             var warehouse = await _WareRepo.WarehouseGetKhoHangToNhanVaoKho(makho);
-            if (order == null || warehouse == null) return (false, "");
+
+            // Kiểm tra kho này có thuộc về quản lý kho này không
+            if (warehouse == null || warehouse.MaQLK != uid)
+                return (false, "Kho không tồn tại hoặc bạn không có quyền quản lý kho này.");
+
+            if (order == null)
+                return (false, "");
 
             order.TrangThai = "Đã vào kho";
             order.MaQLK = uid;
@@ -74,7 +85,8 @@ namespace FreightManagement.Service
         {
             var order = await _OrdersRepo.WarehouseGetDonHangsToNhanVaoKho(maDon);
             var tx = await _UsersRepo.GetUserById(maTX);
-            if (order == null || tx == null) return (false, "");
+            if (order == null || tx == null)
+                return (false, "");
 
             order.MaTX = maTX;
             await _OrdersRepo.UpdateOrder(order);
@@ -89,11 +101,11 @@ namespace FreightManagement.Service
             return (true, $"Đã gán tài xế {tx.HoTen} cho đơn #DH{maDon:D5} thành công!");
         }
 
-        // ── YC4: Lấy danh sách đơn giao thất bại ────────────────────────────
         public async Task<List<DonHang>> GetDonHangsGiaoThatBai()
-            => await _OrdersRepo.GetDonHangsByTrangThai("Giao thất bại");
+        {
+            return await _OrdersRepo.GetDonHangsByTrangThai("Giao thất bại");
+        }
 
-        // ── YC4: Quản lý kho xử lý giao lại → đưa về "Đã vào kho" ──────────
         public async Task<(bool valid, string message)> XuLyGiaoLai(int maDon, int uid)
         {
             var order = await _OrdersRepo.WarehouseGetDonHangsToNhanVaoKho(maDon);
@@ -113,10 +125,14 @@ namespace FreightManagement.Service
             return (true, $"Đơn #DH{maDon:D5} đã được đặt lại trạng thái chờ giao.");
         }
 
-        public async Task<List<HangTrongKho>> StockService()
-            => await _HTKRepo.WarehouseGetToStock();
+        public async Task<List<HangTrongKho>> StockService(int uid)
+        {
+            return await _HTKRepo.GetStockByMaQLK(uid);  
+        }
 
-        public async Task<List<HangTrongKho>> ExportedService()
-            => await _HTKRepo.WarehouseGetToExported();
+        public async Task<List<HangTrongKho>> ExportedService(int uid)
+        {
+            return await _HTKRepo.GetExportedByMaQLK(uid);  
+        }
     }
 }
