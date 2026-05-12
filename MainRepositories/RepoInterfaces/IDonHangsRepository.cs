@@ -29,7 +29,9 @@ namespace FreightManagement.MainRepositories.RepoInterfaces
         Task<DonHang> OrdersGetDonHangsIncludeByMaDonAndMaKH(int id, int userId);
         Task<DonHang> OrdersGetDonHangsByMaDonAndMaKH(int id, int userId);
         Task<int> WarehouseGetDonHangsCountByTrangThaiAndNgayCapNhat(string trangthai);
+
         Task<List<DonHang>> WarehouseGetDonHangsToIncoming(string trangthai);
+
         Task<DonHang> WarehouseGetDonHangsToNhanVaoKho(int madon);
         Task<List<DonHang>> WarehouseGetDonHangsToAssignOrders(string trangthai);
         Task<List<Taixetheokho>> WarehouseGetDonHangsToAssignTaixetheokho(string trangthai);

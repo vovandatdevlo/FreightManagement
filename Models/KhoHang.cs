@@ -23,7 +23,7 @@ namespace FreightManagement.Models
         public int? MaQLK { get; set; }
 
         // Navigation
-        public User? QuanLyKho { get; set; }
+        public Users? QuanLyKho { get; set; }
         public ICollection<HangTrongKho> HangTrongKhos { get; set; } = new List<HangTrongKho>();
     }
 }

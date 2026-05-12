@@ -55,7 +55,7 @@ namespace FreightManagement.Service
         }
 
         // ── Users ────────────────────────────────────────────────────────────
-        public async Task<List<User>> GetUsersList()
+        public async Task<List<Users>> GetUsersList()
         {
             return await _UsersRepo.GetUsersList();
         }
@@ -84,7 +84,7 @@ namespace FreightManagement.Service
             if (await _UsersRepo.CheckExistUserByEmail(dto.Email))
                 return (false, "Email này đã được sử dụng.");
 
-            var user = new User
+            var user = new Users
             {
                 HoTen = dto.HoTen.Trim(),
                 Email = dto.Email.Trim().ToLower(),
@@ -124,7 +124,7 @@ namespace FreightManagement.Service
         }
 
         // ── GÁN KHO CHO QUẢN LÝ KHO ─────────────────────────────────────────
-        public async Task<List<User>> GetAllQuanLyKho()
+        public async Task<List<Users>> GetAllQuanLyKho()
         {
             return await _WareRepo.GetAllQuanLyKho();
         }

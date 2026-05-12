@@ -177,6 +177,7 @@ namespace FreightManagement.MainRepositories.Repository
 
         public async Task<List<DonHang>> WarehouseGetDonHangsToIncoming(string trangthai)
         {
+
             return await _db.DonHangs
                 .Include(d => d.KhachHang)
                 .Where(d => d.TrangThai == trangthai)

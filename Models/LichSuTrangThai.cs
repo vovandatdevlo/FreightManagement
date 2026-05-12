@@ -21,6 +21,6 @@ namespace FreightManagement.Models
 
         // Navigation
         public DonHang DonHang { get; set; } = null!;
-        public User? NguoiCapNhat { get; set; }
+        public Users? NguoiCapNhat { get; set; }
     }
 }

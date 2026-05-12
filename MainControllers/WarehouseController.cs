@@ -1,9 +1,10 @@
 ﻿using FreightManagement.Data;
 using FreightManagement.Models;
 using FreightManagement.Service;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authorization;
+using System;
 
 namespace FreightManagement.MainControllers
 {
@@ -43,9 +44,9 @@ namespace FreightManagement.MainControllers
 
         public async Task<IActionResult> Assign()
         {
-            var result = await _ws.AssignService();
+            var result = await _ws.AssignService(GetUid());
             ViewBag.TaiXeDict = result.Item1;
-            return View(result.orders);
+            return View(result.ordersList);
         }
 
         [HttpPost]

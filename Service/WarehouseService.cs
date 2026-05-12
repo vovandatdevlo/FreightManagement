@@ -35,10 +35,22 @@ namespace FreightManagement.Service
 
         public async Task<(List<DonHang> orders, List<KhoHang> Warehouses)> IncomingService(string trangthai, int uid)
         {
+            //var user = await _UsersRepo.GetUserById(uid);
             var tempOrders = await _OrdersRepo.WarehouseGetDonHangsToIncoming(trangthai);
             // THAY ĐỔI: Chỉ lấy kho của quản lý kho này
             var tempWarehouses = await _WareRepo.GetKhoHangByMaQLK(uid);
-            return (tempOrders, tempWarehouses);
+            var Orders = new List<DonHang>();
+            for (int i = 0; i < tempOrders.Count; i++)
+            {
+                for (int j = 0; j < tempWarehouses.Count; j++)
+                {
+                    if (tempOrders[i].DiaChiGui == tempWarehouses[j].DiaChiKho)
+                    {
+                        Orders.Add(tempOrders[i]);
+                    }
+                }
+            }
+            return (Orders, tempWarehouses);
         }
 
         public async Task<(bool IsValidItem, string message)> NhanVaoKhoService(int uid, int madon, int makho)
@@ -68,17 +80,29 @@ namespace FreightManagement.Service
             return (true, $"Đã nhập đơn #DH{madon:D5} vào {warehouse.TenKho}!");
         }
 
-        public async Task<(Dictionary<int, List<User>>, List<DonHang> orders)> AssignService()
+        public async Task<(Dictionary<int, List<Users>>, List<DonHang> ordersList)> AssignService(int MaQLK)
         {
+            var Warehouses = await _WareRepo.GetKhoHangByMaQLK(MaQLK);
             var orders = await _OrdersRepo.WarehouseGetDonHangsToAssignOrders("Đã vào kho");
             var taiXeTheoKho = await _OrdersRepo.WarehouseGetDonHangsToAssignTaixetheokho("Đã vào kho");
-            var taixeDict = new Dictionary<int, List<User>>();
+            var ordersList = new List<DonHang>();
+            for (var i = 0; i < orders.Count; i++)
+            {
+                for (var j = 0; j < Warehouses.Count; j++)
+                {
+                    if (orders[i].DiaChiGui == Warehouses[j].DiaChiKho)
+                    {
+                        ordersList.Add(orders[i]);
+                    }
+                }
+            }
+            var taixeDict = new Dictionary<int, List<Users>>();
             foreach (var item in taiXeTheoKho)
             {
                 var listTX = await _UsersRepo.GetTaixeByKho(item.TinhKho!);
                 taixeDict[item.MaDon] = listTX;
             }
-            return (taixeDict, orders);
+            return (taixeDict, ordersList);
         }
 
         public async Task<(bool valid, string message)> GanTaiXeService(int uid, int maDon, int maTX)
@@ -114,7 +138,6 @@ namespace FreightManagement.Service
 
             order.TrangThai = "Đã vào kho";
             await _OrdersRepo.UpdateOrder(order);
-
             await _hisRepo.DriverAddLichSuTrangThai(new LichSuTrangThai
             {
                 MaDon = maDon,

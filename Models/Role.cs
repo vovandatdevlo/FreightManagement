@@ -11,6 +11,6 @@ namespace FreightManagement.Models
         public string RoleName { get; set; } = string.Empty;
 
         // Navigation
-        public ICollection<User> Users { get; set; } = new List<User>();
+        public ICollection<Users> Users { get; set; } = new List<Users>();
     }
 }

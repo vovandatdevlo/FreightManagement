@@ -56,7 +56,7 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
     ViewData["Title"] = "Gán tài xế";
 
-    var taiXeDict = ViewBag.TaiXeDict as Dictionary<int, List<FreightManagement.Models.User>>;
+    var taiXeDict = ViewBag.TaiXeDict as Dictionary<int, List<FreightManagement.Models.Users>>;
 }
 
 <div class="page-header">
@@ -94,7 +94,7 @@
             {
                 var listTX = taiXeDict != null && taiXeDict.ContainsKey(d.MaDon)
                 ? taiXeDict[d.MaDon]
-                : new List<FreightManagement.Models.User>();
+                : new List<FreightManagement.Models.Users>();
 
                 <tr>
                     <td>

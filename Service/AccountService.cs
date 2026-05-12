@@ -20,7 +20,7 @@ namespace FreightManagement.Service
                 return true;
             return false;
         }
-        public bool IsNullObject(User user)
+        public bool IsNullObject(Users user)
         {
             if (user == null)
                 return true;
@@ -32,7 +32,7 @@ namespace FreightManagement.Service
                 return true;
             return false;
         }
-        public async Task<User> GetUserToLogin(string email, string password)
+        public async Task<Users> GetUserToLogin(string email, string password)
         {
             var hash = HashPassword(password);
             return await _UsersRepo.GetUserByAccount(email, hash);
@@ -44,16 +44,16 @@ namespace FreightManagement.Service
             var hash = sha.ComputeHash(bytes);
             return Convert.ToHexString(hash);
         }
-        public async Task AddUser(User user)
+        public async Task AddUser(Users user)
         {
             user.PasswordHash = HashPassword(user.PasswordHash);
             await _UsersRepo.AddUser(user);
         }
-        public async Task<User> GetUserByRoleAndId(int userId)
+        public async Task<Users> GetUserByRoleAndId(int userId)
         {
             return await _UsersRepo.GetUserByRoleAndUserID(userId);
         }
-        public async Task<User> GetUserById(int userId)
+        public async Task<Users> GetUserById(int userId)
         {
             return await _UsersRepo.GetUserById(userId);
         }
@@ -63,13 +63,35 @@ namespace FreightManagement.Service
                 return true;
             return false;
         }
-        public async Task<User> GetFirstUserById(int userId)
+        public async Task<Users> GetFirstUserById(int userId)
         {
             return await _UsersRepo.GetFirstUserById(userId);
         }
-        public async Task UpdateInFor(string roleName, User user, UpdateProfileDTO obj)
+        public async Task<(bool isValidInfor, string message)> RegisterService(AccountRegisterDTO obj)
         {
-            user.HoTen = obj.hoTen.Trim();
+            if (obj.password != obj.confirmPassword)
+            {
+                return (false, "Mật khẩu xác nhận không khớp.");
+            }
+            if (await IsExistObject(obj.email))
+            {
+                return (false, "Email này đã được đăng ký.");
+            }
+            var user = new Users
+            {
+                HoTen = obj.hoTen,
+                Email = obj.email,
+                PasswordHash = obj.password,
+                SoDienThoai = obj.soDienThoai,
+                DiaChi = obj.diaChi,
+                RoleId = 2,
+            };
+            await AddUser(user);
+            return (true, "Đăng ký thành công! Vui lòng đăng nhập.");
+        }
+        public async Task UpdateInFor(string roleName, Users user, UpdateProfileDTO obj)
+        {
+            user.HoTen = obj.hoTen!.Trim();
             user.SoDienThoai = obj.soDienThoai?.Trim();
             user.DiaChi = obj.diaChi?.Trim();
             if (roleName == "TaiXe" && !string.IsNullOrWhiteSpace(obj.cccd))
@@ -85,7 +107,7 @@ namespace FreightManagement.Service
             }
             if (obj.newPassword != obj.confirmPassword)
                 return (false, "Mật khẩu xác nhận không khớp.");
-            if (user == null || user.PasswordHash != HashPassword(obj.currentPassword))
+            if (user == null || user.PasswordHash != HashPassword(obj.currentPassword!))
                 return (false, "Mật khẩu hiện tại không đúng.");
             if (HashPassword(obj.newPassword) == user.PasswordHash)
                 return (false, "Mật khẩu mới không được trùng mật khẩu cũ.");

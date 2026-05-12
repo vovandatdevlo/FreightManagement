@@ -12,7 +12,7 @@ namespace FreightManagement.MainRepositories.Repository
         {
             _db = db;
         }
-        public async Task<User> GetUserByAccount(string email, string passwordHash)
+        public async Task<Users> GetUserByAccount(string email, string passwordHash)
         {
             return await _db.Users
                 .Include(u => u.Role)
@@ -23,23 +23,23 @@ namespace FreightManagement.MainRepositories.Repository
             return await _db.Users
                 .AnyAsync(u => u.Email == email);
         }
-        public async Task AddUser(User u)
+        public async Task AddUser(Users u)
         {
             _db.Users.Add(u);
             await _db.SaveChangesAsync();
         }
-        public async Task<User> GetUserByRoleAndUserID(int UserId)
+        public async Task<Users> GetUserByRoleAndUserID(int UserId)
         {
             return await _db.Users
                 .Include(u => u.Role)
                 .FirstOrDefaultAsync(u => u.UserId == UserId);
         }
-        public async Task<User> GetUserById(int UserId)
+        public async Task<Users> GetUserById(int UserId)
         {
             return await _db.Users
                 .FindAsync(UserId);
         }
-        public async Task<User> GetFirstUserById(int userId)
+        public async Task<Users> GetFirstUserById(int userId)
         {
             return await _db.Users.Include(d => d.Role).FirstAsync(d => d.UserId == userId);
         }
@@ -48,7 +48,7 @@ namespace FreightManagement.MainRepositories.Repository
             return await _db.Users
                 .CountAsync(u => u.RoleId == roleId);
         }
-        public async Task<List<User>> GetUsersList()
+        public async Task<List<Users>> GetUsersList()
         {
             return await _db.Users
                 .Include(u => u.Role)
@@ -56,13 +56,13 @@ namespace FreightManagement.MainRepositories.Repository
                 .ThenBy(u => u.HoTen)
                 .ToListAsync();
         }
-        public async Task<List<User>> GetTaixeByKho(string diachi)
+        public async Task<List<Users>> GetTaixeByKho(string diachi)
         {
             return await _db.Users
                 .Where(u => u.RoleId == 4 && u.TrangThai == "HoatDong" && u.DiaChi == diachi)
                 .ToListAsync();
         }
-        public async Task UpdateUser(User user)
+        public async Task UpdateUser(Users user)
         {
             _db.Users.Update(user);
             await _db.SaveChangesAsync();

@@ -72,30 +72,37 @@ namespace FreightManagement.MainControllers
         [HttpPost]
         public async Task<IActionResult> Register(AccountRegisterDTO obj)
         {
-            if (obj.password != obj.confirmPassword)
+            //if (obj.password != obj.confirmPassword)
+            //{
+            //    ViewBag.Error = "Mật khẩu xác nhận không khớp.";
+            //    return View();
+            //}
+
+            //if (await _acc.IsExistObject(obj.email))
+            //{
+            //    ViewBag.Error = "Email này đã được đăng ký.";
+            //    return View();
+            //}
+
+            //var user = new User
+            //{
+            //    HoTen = obj.hoTen,
+            //    Email = obj.email,
+            //    PasswordHash = obj.password,
+            //    SoDienThoai = obj.soDienThoai,
+            //    DiaChi = obj.diaChi,
+            //    RoleId = 2 // KhachHang
+            //};
+
+            //await _acc.AddUser(user);
+            //TempData["Success"] = "Đăng ký thành công! Vui lòng đăng nhập.";
+            var result = await _acc.RegisterService(obj);
+            if (!result.isValidInfor)
             {
-                ViewBag.Error = "Mật khẩu xác nhận không khớp.";
+                ViewBag.Error = result.message;
                 return View();
             }
-
-            if (await _acc.IsExistObject(obj.email))
-            {
-                ViewBag.Error = "Email này đã được đăng ký.";
-                return View();
-            }
-
-            var user = new User
-            {
-                HoTen = obj.hoTen,
-                Email = obj.email,
-                PasswordHash = obj.password,
-                SoDienThoai = obj.soDienThoai,
-                DiaChi = obj.diaChi,
-                RoleId = 2 // KhachHang
-            };
-
-            await _acc.AddUser(user);
-            TempData["Success"] = "Đăng ký thành công! Vui lòng đăng nhập.";
+            TempData["Success"] = result.message;
             return RedirectToAction("Login");
         }
 

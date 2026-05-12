@@ -59,7 +59,8 @@ namespace FreightManagement.MainRepositories.Repository
                 .ToListAsync();
         }
 
-        public async Task<List<User>> GetAllQuanLyKho()
+
+        public async Task<List<Users>> GetAllQuanLyKho()
         {
             return await _db.Users
                 .Where(u => u.RoleId == 3)

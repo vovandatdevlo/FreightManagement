@@ -35,7 +35,7 @@ namespace FreightManagement.Models
         public int DonGia { get; set; } = 10000;
 
         // Computed: ChiPhi = SoLuong * DonGia (tính ở DB, đọc-only ở C#)
-        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
+        //[DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         [Display(Name = "Chi phí")]
         public int ChiPhi { get; set; }
 
@@ -49,9 +49,12 @@ namespace FreightManagement.Models
         public DateTime NgayCapNhat { get; set; } = DateTime.Now;
 
         // Navigation
-        public User KhachHang { get; set; } = null!;
-        public User? TaiXe { get; set; }
-        public User? QuanLyKho { get; set; }
+        //[ForeignKey("MaKH")]
+        public Users KhachHang { get; set; } = null!;
+        //[ForeignKey("MaTX")]
+        public Users? TaiXe { get; set; }
+        //[ForeignKey("MaQLK")]
+        public Users? QuanLyKho { get; set; }
         public ICollection<LichSuTrangThai> LichSuTrangThais { get; set; } = new List<LichSuTrangThai>();
         public HangTrongKho? HangTrongKho { get; set; }
     }

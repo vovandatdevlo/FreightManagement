@@ -21,7 +21,7 @@ namespace FreightManagement.Service
         public async Task<List<DonHang>> OrdersGetDonHangsByMaKHAndDescending(int uid)
             => await _OrdersRepo.OrdersGetDonHangsByMaKHAndDescending(uid);
 
-        public async Task<User> GetUserById(int UserId)
+        public async Task<Users> GetUserById(int UserId)
             => await _UsersRepo.GetUserById(UserId);
 
         public async Task<string> CreateOrderService(int userId, CreateOrderDTO obj)
@@ -43,6 +43,7 @@ namespace FreightManagement.Service
                 MoTaHang = obj.MoTaHang,
                 SoLuong = obj.SoLuong,
                 DonGia = donGia,
+                ChiPhi = donGia * obj.SoLuong,
                 TrangThai = "Đang xử lý"
             };
             await _OrdersRepo.OrdersAddDonHangs(order);

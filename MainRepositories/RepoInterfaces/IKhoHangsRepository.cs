@@ -14,6 +14,6 @@ namespace FreightManagement.MainRepositories.RepoInterfaces
         Task<List<KhoHang>> GetKhoHangByMaQLK(int maQLK);
 
         // Admin quản lý
-        Task<List<User>> GetAllQuanLyKho();
+        Task<List<Users>> GetAllQuanLyKho();
     }
 }
