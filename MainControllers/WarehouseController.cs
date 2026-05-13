@@ -18,11 +18,11 @@ namespace FreightManagement.MainControllers
 
         public async Task<IActionResult> Index()
         {
-            ViewBag.ChoNhanVaoKho = await _ws.GetDonHangsCountByTrangThai("Đang xử lý");
-            ViewBag.DangTrongKho = await _ws.GetDonHangsCountByTrangThai("Đã vào kho");
-            ViewBag.DangVanChuyen = await _ws.GetDonHangsCountByTrangThai("Đang vận chuyển");
-            ViewBag.DaGiao = await _ws.WarehouseGetDonHangsCountByTrangThaiAndNgayCapNhat("Đã giao");
-            ViewBag.GiaoThatBai = await _ws.GetDonHangsCountByTrangThai("Giao thất bại");
+            ViewBag.ChoNhanVaoKho = await _ws.GetDonHangsCountByTrangThai("Đang xử lý", GetUid());
+            ViewBag.DangTrongKho = await _ws.GetDonHangsCountByTrangThai("Đã vào kho", GetUid());
+            ViewBag.DangVanChuyen = await _ws.GetDonHangsCountByTrangThai("Đang vận chuyển", GetUid());
+            ViewBag.DaGiao = await _ws.WarehouseGetDonHangsCountByTrangThaiAndNgayCapNhat("Đã giao", GetUid());
+            ViewBag.GiaoThatBai = await _ws.GetDonHangsCountByTrangThai("Giao thất bại", GetUid());
             return View();
         }
 

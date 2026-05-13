@@ -31,7 +31,7 @@ namespace FreightManagement.Service
 
         public async Task<int> GetDonHangsCountByTrangThai(string trangthai)
         {
-            return await _OrderRepo.GetDonHangsCountByTrangThai(trangthai);
+            return await _OrderRepo.GetFullOrdersCountByTrangThai(trangthai);
         }
 
         public async Task<int> GetUsersCountByRoleId(int roleId)

@@ -23,14 +23,29 @@ namespace FreightManagement.Service
             _UsersRepo = UsersRepo;
         }
 
-        public async Task<int> GetDonHangsCountByTrangThai(string trangthai)
+        public async Task<int> GetDonHangsCountByTrangThai(string trangthai, int MaQLK)
         {
-            return await _OrdersRepo.GetDonHangsCountByTrangThai(trangthai);
+            if (trangthai == "Đang xử lý")
+            {
+                var KhoHangList = await _WareRepo.WarehouseGetKhoHangToIncoming(MaQLK);
+                var OrdersList = await _OrdersRepo.GetFullOrdersDangXuLy();
+                int total = 0;
+                for (int i = 0; i < KhoHangList.Count; i++)
+                {
+                    for (int j = 0; j < OrdersList.Count; j++)
+                    {
+                        if (KhoHangList[i].DiaChiKho == OrdersList[j].DiaChiGui)
+                            total++;
+                    }
+                }
+                return total;
+            }
+            return await _OrdersRepo.GetDonHangsCountByTrangThai(trangthai, MaQLK);
         }
 
-        public async Task<int> WarehouseGetDonHangsCountByTrangThaiAndNgayCapNhat(string trangthai)
+        public async Task<int> WarehouseGetDonHangsCountByTrangThaiAndNgayCapNhat(string trangthai, int MaQLK)
         {
-            return await _OrdersRepo.WarehouseGetDonHangsCountByTrangThaiAndNgayCapNhat(trangthai);
+            return await _OrdersRepo.WarehouseGetDonHangsCountByTrangThaiAndNgayCapNhat(trangthai, MaQLK);
         }
 
         public async Task<(List<DonHang> orders, List<KhoHang> Warehouses)> IncomingService(string trangthai, int uid)

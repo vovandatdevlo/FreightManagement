@@ -23,12 +23,19 @@ namespace FreightManagement.MainRepositories.Repository
 
         public async Task<int> GetDonHangsCount()
         {
-            return await _db.DonHangs.CountAsync();
+            return await _db.DonHangs
+                .CountAsync();
         }
 
-        public async Task<int> GetDonHangsCountByTrangThai(string trangthai)
+        public async Task<int> GetDonHangsCountByTrangThai(string trangthai, int MaQLK)
         {
-            return await _db.DonHangs.CountAsync(u => u.TrangThai == trangthai);
+            return await _db.DonHangs
+                .CountAsync(u => u.TrangThai == trangthai && u.MaQLK == MaQLK);
+        }
+        public async Task<int> GetFullOrdersCountByTrangThai(string trangthai)
+        {
+            return await _db.DonHangs
+                .CountAsync(u => u.TrangThai == trangthai);
         }
 
         public async Task<List<DonHang>> GetRecentDonHangs()
@@ -40,12 +47,15 @@ namespace FreightManagement.MainRepositories.Repository
                 .ToListAsync();
         }
 
-        public async Task<List<DonHang>> GetFullOrders()
+        public async Task<List<DonHang>> GetFullOrdersDangXuLy()
         {
+            //return await _db.DonHangs
+            //    .Include(d => d.KhachHang)
+            //    .Include(d => d.TaiXe)
+            //    .OrderByDescending(d => d.NgayTao)
+            //    .ToListAsync();
             return await _db.DonHangs
-                .Include(d => d.KhachHang)
-                .Include(d => d.TaiXe)
-                .OrderByDescending(d => d.NgayTao)
+                .Where(d => d.TrangThai == "Đang xử lý")
                 .ToListAsync();
         }
 
@@ -169,9 +179,10 @@ namespace FreightManagement.MainRepositories.Repository
                 .FirstOrDefaultAsync(d => d.MaDon == id && d.MaKH == userId);
         }
 
-        public async Task<int> WarehouseGetDonHangsCountByTrangThaiAndNgayCapNhat(string trangthai)
+        public async Task<int> WarehouseGetDonHangsCountByTrangThaiAndNgayCapNhat(string trangthai, int MaQLK)
         {
             return await _db.DonHangs
+                .Where(d => d.MaQLK == MaQLK)
                 .CountAsync(d => d.TrangThai == trangthai && d.NgayCapNhat.Date == DateTime.Today);
         }
 

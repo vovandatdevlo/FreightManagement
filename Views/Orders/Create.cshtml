@@ -240,7 +240,7 @@
     </div>
 </form>
 
-@section Scripts {
+@* @section Scripts {
     <script>
         function tinhChiPhi() {
             const sl = parseInt(document.getElementById('soLuong').value) || 0;
@@ -276,6 +276,67 @@
         window.onload = function() {
             doiLoaiHang();
         };
+    </script> *@
+@section Scripts {
+    <script>
+
+        // lấy số điện thoại người gửi từ server
+        const sdtNguoiGui = '@ViewBag.SoDienThoai';
+
+        function tinhChiPhi() {
+            const sl = parseInt(document.getElementById('soLuong').value) || 0;
+            const dg = parseInt(document.getElementById('donGia').value) || 0;
+            const cp = sl * dg;
+
+            document.getElementById('chiPhiHienThi').textContent =
+                cp.toLocaleString('vi-VN') + ' VNĐ';
+        }
+
+        function doiLoaiHang() {
+            const loai = document.querySelector('input[name="LoaiHang"]:checked').value;
+
+            const labelSL = document.getElementById('labelSoLuong');
+            const labelDG = document.getElementById('labelDonGia');
+            const donGia = document.getElementById('donGia');
+
+            if (loai === "HangHoa") {
+                labelSL.textContent = "Khối lượng (kg)";
+                labelDG.textContent = "Đơn giá (VNĐ/kg)";
+                donGia.value = 25000;
+            }
+            else if (loai === "ThuTu") {
+                labelSL.textContent = "Số lượng (kiện)";
+                labelDG.textContent = "Đơn giá (VNĐ/kiện)";
+                donGia.value = 20000;
+            }
+            else if (loai === "Fresh") {
+                labelSL.textContent = "Số lượng (kiện)";
+                labelDG.textContent = "Đơn giá (VNĐ/kiện)";
+                donGia.value = 30000;
+            }
+
+            tinhChiPhi();
+        }
+
+        // kiểm tra submit form
+        document.querySelector("form").addEventListener("submit", function (e) {
+
+            const sdtNguoiNhan =
+                document.querySelector('input[name="SdtNguoiNhan"]').value.trim();
+
+            if (sdtNguoiNhan === sdtNguoiGui) {
+                e.preventDefault();
+
+                alert("Số điện thoại người nhận không được trùng với người gửi!");
+
+                document.querySelector('input[name="SdtNguoiNhan"]').focus();
+            }
+        });
+
+        window.onload = function () {
+            doiLoaiHang();
+        };
+
     </script>
     <style>
         /* Style cho các nút chọn kho */

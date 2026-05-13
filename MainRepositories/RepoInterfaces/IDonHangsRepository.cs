@@ -7,9 +7,11 @@ namespace FreightManagement.MainRepositories.RepoInterfaces
     {
         Task UpdateOrder(DonHang order);
         Task<int> GetDonHangsCount();
-        Task<int> GetDonHangsCountByTrangThai(string trangthai);
+        Task<int> GetDonHangsCountByTrangThai(string trangthai, int MaQLK);
+        Task<int> GetFullOrdersCountByTrangThai(string trangthai);
         Task<List<DonHang>> GetRecentDonHangs();
-        Task<List<DonHang>> GetFullOrders();
+        //Task<List<DonHang>> 
+        Task<List<DonHang>> GetFullOrdersDangXuLy();
 
         // YC5: filter + phân trang
         Task<(List<DonHang> items, int totalCount)> GetFullOrdersFiltered(
@@ -28,7 +30,7 @@ namespace FreightManagement.MainRepositories.RepoInterfaces
         Task OrdersAddDonHangs(DonHang order);
         Task<DonHang> OrdersGetDonHangsIncludeByMaDonAndMaKH(int id, int userId);
         Task<DonHang> OrdersGetDonHangsByMaDonAndMaKH(int id, int userId);
-        Task<int> WarehouseGetDonHangsCountByTrangThaiAndNgayCapNhat(string trangthai);
+        Task<int> WarehouseGetDonHangsCountByTrangThaiAndNgayCapNhat(string trangthai, int MaQLK);
 
         Task<List<DonHang>> WarehouseGetDonHangsToIncoming(string trangthai);
 
