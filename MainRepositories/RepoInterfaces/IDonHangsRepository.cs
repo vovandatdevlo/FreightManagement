@@ -37,5 +37,6 @@ namespace FreightManagement.MainRepositories.RepoInterfaces
         Task<DonHang> WarehouseGetDonHangsToNhanVaoKho(int madon);
         Task<List<DonHang>> WarehouseGetDonHangsToAssignOrders(string trangthai);
         Task<List<Taixetheokho>> WarehouseGetDonHangsToAssignTaixetheokho(string trangthai);
+        Task<bool> CheckExistSdtNguoiNhan(string sdt);
     }
 }

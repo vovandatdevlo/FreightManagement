@@ -11,7 +11,7 @@ namespace FreightManagement.MainControllers
         private readonly OrdersService _os;
         public OrdersController(OrdersService os)
         {
-            _os = os; 
+            _os = os;
         }
 
         private static readonly List<string> Provinces = new()
@@ -51,7 +51,17 @@ namespace FreightManagement.MainControllers
         {
             var userId = int.Parse(User.FindFirst("UserId")!.Value);
             var result = await _os.CreateOrderService(userId, obj);
-            TempData["Success"] = result;
+            if (!result.success)
+            {
+                var user = await _os.GetUserById(userId);
+                ViewBag.HoTen = user?.HoTen;
+                ViewBag.SoDienThoai = user?.SoDienThoai;
+                ViewBag.DiaChi = user?.DiaChi;
+                ViewBag.Provinces = Provinces;
+                ViewBag.Error = result.message;
+                return View(obj);
+            }
+            TempData["Success"] = result.message;
             return RedirectToAction("Index");
         }
 

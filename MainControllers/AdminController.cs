@@ -142,5 +142,17 @@ namespace FreightManagement.MainControllers
             var data = await _ads.AdminGetToRevenue();
             return View(data);
         }
+
+        // ── Cập nhật CCCD tài xế ────────────────────────────────────────────
+        [HttpPost]
+        public async Task<IActionResult> UpdateDriverCCCD(int driverId, string cccd)
+        {
+            var result = await _ads.UpdateDriverCCCD(driverId, cccd);
+            if (result.success)
+                TempData["Success"] = result.message;
+            else
+                TempData["Error"] = result.message;
+            return RedirectToAction("Users");
+        }
     }
 }

@@ -19,5 +19,7 @@ namespace FreightManagement.MainRepositories.RepoInterfaces
         Task<int> GetUsersCountByRoleId(int roleId);
         Task<List<Users>> GetUsersList();
         Task<List<Users>> GetTaixeByKho(string diachi);
+        Task<bool> CheckExistDriverBySoDienThoai(string soDienThoai, int? excludeUserId = null);
+        Task<bool> CheckExistDriverByCCCD(string cccd, int? excludeUserId = null);
     }
 }

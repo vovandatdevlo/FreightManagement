@@ -74,13 +74,36 @@
             <input asp-for="SoDienThoai" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:4px;font-size:.95rem" placeholder="09xxxxxxxx" />
         </div>
 
-        @* Địa chỉ *@
-        <div style="margin-bottom:20px">
+        @* Địa chỉ / Tỉnh phụ trách — dropdown tỉnh thành, chỉ bắt buộc với Tài xế *@
+        <div style="margin-bottom:20px" id="diaChiRow">
             <label style="display:block;margin-bottom:6px;font-weight:600;color:#333">
                 Địa chỉ / Tỉnh phụ trách
                 <span style="color:#888;font-weight:400;font-size:.85rem"> (Tài xế sẽ nhận đơn ở tỉnh này)</span>
             </label>
-            <input asp-for="DiaChi" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:4px;font-size:.95rem" placeholder="Hà Nội / TP. Hồ Chí Minh ..." />
+            <select asp-for="DiaChi" id="diaChiSelect"
+                    style="width:100%;padding:10px;border:1px solid #ddd;border-radius:4px;font-size:.95rem">
+                <option value="">-- Chọn tỉnh/thành phố --</option>
+                @{
+                    var provincesStaff = new[] {
+                                "An Giang","Bà Rịa - Vũng Tàu","Bắc Giang","Bắc Kạn","Bạc Liêu",
+                                "Bắc Ninh","Bến Tre","Bình Định","Bình Dương","Bình Phước",
+                                "Bình Thuận","Cà Mau","Cần Thơ","Cao Bằng","Đà Nẵng","Đắk Lắk",
+                                "Đắk Nông","Điện Biên","Đồng Nai","Đồng Tháp","Gia Lai","Hà Giang",
+                                "Hà Nam","Hà Nội","Hà Tĩnh","Hải Dương","Hải Phòng","Hậu Giang",
+                                "Hòa Bình","Hưng Yên","Khánh Hòa","Kiên Giang","Kon Tum","Lai Châu",
+                                "Lâm Đồng","Lạng Sơn","Lào Cai","Long An","Nam Định","Nghệ An",
+                                "Ninh Bình","Ninh Thuận","Phú Thọ","Phú Yên","Quảng Bình","Quảng Nam",
+                                "Quảng Ngãi","Quảng Ninh","Quảng Trị","Sóc Trăng","Sơn La","Tây Ninh",
+                                "Thái Bình","Thái Nguyên","Thanh Hóa","Thừa Thiên Huế","Tiền Giang",
+                                "TP. Hồ Chí Minh","Trà Vinh","Tuyên Quang","Vĩnh Long","Vĩnh Phúc","Yên Bái"
+                                };
+                    foreach (var p in provincesStaff)
+                    {
+                        <option value="@p" selected="@(Model?.DiaChi == p ? "selected" : null)">@p</option>
+                    }
+                }
+            </select>
+            <small id="diaChiNote" style="color:#888;display:none;margin-top:4px">Bắt buộc đối với Tài xế.</small>
         </div>
 
         @* CCCD — chỉ hiện khi chọn Tài xế *@
@@ -101,11 +124,16 @@
 <script>
     const roleSelect = document.getElementById('roleSelect');
     const cccdRow = document.getElementById('cccdRow');
+    const diaChiNote = document.getElementById('diaChiNote');
+    const diaChiSelect = document.getElementById('diaChiSelect');
 
-    function toggleCCCD() {
-        cccdRow.style.display = roleSelect.value === '4' ? 'block' : 'none';
+    function toggleDriverFields() {
+        const isDriver = roleSelect.value === '4';
+        cccdRow.style.display = isDriver ? 'block' : 'none';
+        diaChiNote.style.display = isDriver ? 'block' : 'none';
+        diaChiSelect.required = isDriver;
     }
 
-    roleSelect.addEventListener('change', toggleCCCD);
-    toggleCCCD();
+    roleSelect.addEventListener('change', toggleDriverFields);
+    toggleDriverFields();
 </script>

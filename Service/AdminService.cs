@@ -84,6 +84,22 @@ namespace FreightManagement.Service
             if (await _UsersRepo.CheckExistUserByEmail(dto.Email))
                 return (false, "Email này đã được sử dụng.");
 
+            // Kiểm tra trùng SĐT tài xế
+            if (!string.IsNullOrWhiteSpace(dto.SoDienThoai) && dto.RoleId == 4)
+            {
+                if (await _UsersRepo.CheckExistDriverBySoDienThoai(dto.SoDienThoai.Trim()))
+                    return (false, "Số điện thoại này đã được sử dụng bởi tài xế khác.");
+            }
+
+            // Kiểm tra trùng CCCD tài xế
+            if (dto.RoleId == 4)
+            {
+                if (string.IsNullOrWhiteSpace(dto.CCCD))
+                    return (false, "Số CCCD là bắt buộc đối với Tài xế.");
+                if (await _UsersRepo.CheckExistDriverByCCCD(dto.CCCD.Trim()))
+                    return (false, "Số CCCD này đã được sử dụng bởi tài xế khác.");
+            }
+
             var user = new Users
             {
                 HoTen = dto.HoTen.Trim(),
@@ -153,6 +169,24 @@ namespace FreightManagement.Service
         public async Task<List<ThongKeDoanhThu>> AdminGetToRevenue()
         {
             return await _TKRepo.AdminGetToRevenue();
+        }
+
+        // ── Cập nhật CCCD tài xế (chỉ Admin) ────────────────────────────────
+        public async Task<(bool success, string message)> UpdateDriverCCCD(int driverId, string cccd)
+        {
+            var driver = await _UsersRepo.GetUserById(driverId);
+            if (driver == null || driver.RoleId != 4)
+                return (false, "Không tìm thấy tài xế.");
+
+            if (string.IsNullOrWhiteSpace(cccd))
+                return (false, "Số CCCD không được để trống.");
+
+            if (await _UsersRepo.CheckExistDriverByCCCD(cccd.Trim(), driverId))
+                return (false, "Số CCCD này đã được sử dụng bởi tài xế khác.");
+
+            driver.CCCD = cccd.Trim();
+            await _UsersRepo.UpdateUser(driver);
+            return (true, $"Đã cập nhật CCCD cho tài xế {driver.HoTen}.");
         }
     }
 }

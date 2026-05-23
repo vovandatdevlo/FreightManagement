@@ -59,9 +59,61 @@
                                 <i class="bi @(u.TrangThai == "HoatDong" ? "bi-lock" : "bi-unlock")"></i>
                             </a>
                         }
+                        @if (u.RoleId == 4)
+                        {
+                            <button type="button" class="btn btn-sm btn-outline-primary ms-1"
+                                    onclick="openCCCDModal(@u.UserId, '@u.HoTen', '@u.CCCD')"
+                                    title="Cập nhật CCCD">
+                                <i class="bi bi-card-text"></i> CCCD
+                            </button>
+                        }
                     </td>
                 </tr>
             }
         </tbody>
     </table>
 </div>
+
+<!-- Modal cập nhật CCCD tài xế -->
+<div class="modal fade" id="cccdModal" tabindex="-1" aria-labelledby="cccdModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cccdModalLabel"><i class="bi bi-card-text me-2"></i>Cập nhật CCCD Tài xế</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="/Admin/UpdateDriverCCCD">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <input type="hidden" name="driverId" id="modalDriverId" />
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Tài xế</label>
+                        <input type="text" id="modalDriverName" class="form-control" readonly style="background:#f5f5f5" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Số CCCD <span class="text-danger">*</span></label>
+                        <input type="text" name="cccd" id="modalCCCD" class="form-control"
+                               placeholder="012345678901" maxlength="20" required />
+                        <small class="text-muted">Nhập số CCCD/CMND của tài xế (phải là duy nhất)</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-circle me-1"></i>Lưu CCCD
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openCCCDModal(driverId, driverName, currentCCCD) {
+        document.getElementById('modalDriverId').value = driverId;
+        document.getElementById('modalDriverName').value = driverName;
+        document.getElementById('modalCCCD').value = currentCCCD || '';
+        var modal = new bootstrap.Modal(document.getElementById('cccdModal'));
+        modal.show();
+    }
+</script>

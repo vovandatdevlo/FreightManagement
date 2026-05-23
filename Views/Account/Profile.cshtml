@@ -108,13 +108,18 @@
                         </select>
                     </div>
 
-                    @* CCCD chỉ hiện cho TaiXe *@
+                    @* CCCD chỉ hiện cho TaiXe - chỉ admin mới được sửa *@
                     @if (role == "TaiXe")
                     {
                         <div class="col-md-6">
                             <label class="form-label">Số CCCD</label>
-                            <input type="text" name="cccd" class="form-control"
-                                   value="@Model.CCCD" placeholder="012345678901" />
+                            <input type="text" class="form-control"
+                                   value="@(string.IsNullOrEmpty(Model.CCCD) ? "Chưa cập nhật" : Model.CCCD)"
+                                   readonly
+                                   style="background:#f5f5f5;cursor:not-allowed" />
+                            <small style="color:#aaa;font-size:.75rem">
+                                <i class="bi bi-lock me-1"></i>CCCD chỉ được cập nhật bởi Admin
+                            </small>
                         </div>
                     }
                 </div>

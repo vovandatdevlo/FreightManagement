@@ -11,8 +11,8 @@ namespace FreightManagement.MainRepositories.Repository
     {
         private readonly AppDbContext _db;
         public DonHangsRepository(AppDbContext db)
-        { 
-            _db = db; 
+        {
+            _db = db;
         }
 
         public async Task UpdateOrder(DonHang order)
@@ -221,6 +221,12 @@ namespace FreightManagement.MainRepositories.Repository
                     MaDon = d.MaDon,
                     TinhKho = d.HangTrongKho!.KhoHang.DiaChiKho
                 }).ToListAsync();
+        }
+
+        public async Task<bool> CheckExistSdtNguoiNhan(string sdt)
+        {
+            return await _db.DonHangs
+                .AnyAsync(d => d.SdtNguoiNhan == sdt);
         }
     }
 }

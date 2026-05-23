@@ -89,14 +89,25 @@ namespace FreightManagement.Service
             await AddUser(user);
             return (true, "Đăng ký thành công! Vui lòng đăng nhập.");
         }
-        public async Task UpdateInFor(string roleName, Users user, UpdateProfileDTO obj)
+        public async Task<(bool success, string message)> UpdateInFor(string roleName, Users user, UpdateProfileDTO obj)
         {
             user.HoTen = obj.hoTen!.Trim();
+
+            // Kiểm tra trùng SĐT (chỉ với tài xế, không tính chính mình)
+            if (roleName == "TaiXe" && !string.IsNullOrWhiteSpace(obj.soDienThoai))
+            {
+                if (await _UsersRepo.CheckExistDriverBySoDienThoai(obj.soDienThoai.Trim(), user.UserId))
+                    return (false, "Số điện thoại này đã được sử dụng bởi tài xế khác.");
+            }
+
             user.SoDienThoai = obj.soDienThoai?.Trim();
             user.DiaChi = obj.diaChi?.Trim();
-            if (roleName == "TaiXe" && !string.IsNullOrWhiteSpace(obj.cccd))
-                user.CCCD = obj.cccd.Trim();
+
+            // CCCD của tài xế KHÔNG được tự chỉnh sửa — chỉ admin mới cập nhật được
+            // (không cập nhật CCCD ở đây dù roleName == "TaiXe")
+
             await _UsersRepo.UpdateUser(user);
+            return (true, "Cập nhật thông tin thành công!");
         }
         public async Task<(bool success, string message)> ChangePasswordMessage(int userId, ChangePasswordDTO obj)
         {

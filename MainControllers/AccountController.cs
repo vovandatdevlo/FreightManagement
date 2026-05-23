@@ -12,9 +12,9 @@ namespace FreightManagement.MainControllers
     public class AccountController : Controller
     {
         private readonly AccountService _acc;
-        public AccountController(AccountService acc) 
+        public AccountController(AccountService acc)
         {
-            _acc = acc; 
+            _acc = acc;
         }
 
         // ── ĐĂNG NHẬP ──────────────────────────────────────────────
@@ -143,8 +143,14 @@ namespace FreightManagement.MainControllers
             }
 
             var roleName = User.FindFirst(ClaimTypes.Role)?.Value;
-            await _acc.UpdateInFor(roleName!, user, obj);
-            TempData["Success"] = "Cập nhật thông tin thành công!";
+            var updateResult = await _acc.UpdateInFor(roleName!, user, obj);
+            if (!updateResult.success)
+            {
+                var u = await _acc.GetFirstUserById(userId);
+                ViewBag.Error = updateResult.message;
+                return View("Profile", u);
+            }
+            TempData["Success"] = updateResult.message;
             return RedirectToAction("Profile");
         }
 

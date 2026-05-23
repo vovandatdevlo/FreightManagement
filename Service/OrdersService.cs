@@ -24,8 +24,15 @@ namespace FreightManagement.Service
         public async Task<Users> GetUserById(int UserId)
             => await _UsersRepo.GetUserById(UserId);
 
-        public async Task<string> CreateOrderService(int userId, CreateOrderDTO obj)
+        public async Task<(bool success, string message)> CreateOrderService(int userId, CreateOrderDTO obj)
         {
+            // Kiểm tra SĐT người nhận đã được dùng trong đơn nào chưa
+            if (!string.IsNullOrWhiteSpace(obj.SdtNguoiNhan))
+            {
+                if (await _OrdersRepo.CheckExistSdtNguoiNhan(obj.SdtNguoiNhan.Trim()))
+                    return (false, "Số điện thoại người nhận này đã được sử dụng trong một đơn hàng khác.");
+            }
+
             int donGia = obj.LoaiHang switch
             {
                 "HangHoa" => 25000,
@@ -54,7 +61,7 @@ namespace FreightManagement.Service
                 GhiChu = "Đơn hàng đã được đặt thành công",
                 CapNhatBoi = userId,
             });
-            return $"Đặt đơn hàng #DH{order.MaDon:D5} thành công!";
+            return (true, $"Đặt đơn hàng #DH{order.MaDon:D5} thành công!");
         }
 
         public async Task<(bool IsValidOrder, DonHang order)> DetailOrderService(int id, int userId)

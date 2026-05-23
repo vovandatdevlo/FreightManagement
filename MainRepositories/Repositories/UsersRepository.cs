@@ -16,7 +16,7 @@ namespace FreightManagement.MainRepositories.Repository
         {
             return await _db.Users
                 .Include(u => u.Role)
-                .FirstOrDefaultAsync(u => u.Email == email && u.PasswordHash == passwordHash && u.TrangThai == "HoatDong");   
+                .FirstOrDefaultAsync(u => u.Email == email && u.PasswordHash == passwordHash && u.TrangThai == "HoatDong");
         }
         public async Task<bool> CheckExistUserByEmail(string email)
         {
@@ -61,6 +61,22 @@ namespace FreightManagement.MainRepositories.Repository
             return await _db.Users
                 .Where(u => u.RoleId == 4 && u.TrangThai == "HoatDong" && u.DiaChi == diachi)
                 .ToListAsync();
+        }
+
+        public async Task<bool> CheckExistDriverBySoDienThoai(string soDienThoai, int? excludeUserId = null)
+        {
+            return await _db.Users
+                .AnyAsync(u => u.RoleId == 4
+                            && u.SoDienThoai == soDienThoai
+                            && (excludeUserId == null || u.UserId != excludeUserId.Value));
+        }
+
+        public async Task<bool> CheckExistDriverByCCCD(string cccd, int? excludeUserId = null)
+        {
+            return await _db.Users
+                .AnyAsync(u => u.RoleId == 4
+                            && u.CCCD == cccd
+                            && (excludeUserId == null || u.UserId != excludeUserId.Value));
         }
         public async Task UpdateUser(Users user)
         {
