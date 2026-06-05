@@ -1,9 +1,9 @@
 ﻿using FreightManagement.Data;
 using FreightManagement.Models;
 using Microsoft.EntityFrameworkCore;
-using FreightManagement.MainRepositories.RepoInterfaces;
+using FreightManagement.Repositories.RepoInterfaces;
 
-namespace FreightManagement.MainRepositories.Repository
+namespace FreightManagement.Repositories.Repository
 {
     public class UsersRepository : IUsersRepository
     {
@@ -12,12 +12,15 @@ namespace FreightManagement.MainRepositories.Repository
         {
             _db = db;
         }
-        public async Task<Users> GetUserByAccount(string email, string passwordHash)
+        public async Task<Users?> GetUserByAccount(string email, string passwordHash)
         {
             return await _db.Users
                 .Include(u => u.Role)
                 .FirstOrDefaultAsync(u => u.Email == email && u.PasswordHash == passwordHash && u.TrangThai == "HoatDong");
         }
+
+        // Trường
+
         public async Task<bool> CheckExistUserByEmail(string email)
         {
             return await _db.Users
@@ -28,13 +31,13 @@ namespace FreightManagement.MainRepositories.Repository
             _db.Users.Add(u);
             await _db.SaveChangesAsync();
         }
-        public async Task<Users> GetUserByRoleAndUserID(int UserId)
+        public async Task<Users?> GetUserByRoleAndUserID(int UserId)
         {
             return await _db.Users
                 .Include(u => u.Role)
                 .FirstOrDefaultAsync(u => u.UserId == UserId);
         }
-        public async Task<Users> GetUserById(int UserId)
+        public async Task<Users?> GetUserById(int UserId)
         {
             return await _db.Users
                 .FindAsync(UserId);

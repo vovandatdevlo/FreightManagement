@@ -1,17 +1,18 @@
 ﻿using FreightManagement.Data;
 using FreightManagement.Models;
-using FreightManagement.Service;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
+using FreightManagement.Services.Service;
+using FreightManagement.Services.IServices;
 
 namespace FreightManagement.MainControllers
 {
     [Authorize(Roles = "TaiXe")]
     public class DriverController : Controller
     {
-        private readonly DriverService _ds;
-        public DriverController(DriverService ds) { _ds = ds; }
+        private readonly IDriverService _ds;
+        public DriverController(IDriverService ds) { _ds = ds; }
 
         private int GetUid() => int.Parse(User.FindFirst("UserId")!.Value);
 
@@ -44,6 +45,8 @@ namespace FreightManagement.MainControllers
             var orders = await _ds.TaixeGetDonHangsByMaTXAndTrangThai(GetUid(), "Đang vận chuyển");
             return View(orders);
         }
+
+        // Trường
 
         [HttpPost]
         public async Task<IActionResult> GiaoThanhCong(int maDon)

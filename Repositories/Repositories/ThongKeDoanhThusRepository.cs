@@ -1,9 +1,9 @@
 ﻿using FreightManagement.Data;
 using Microsoft.EntityFrameworkCore;
 using FreightManagement.Models;
-using FreightManagement.MainRepositories.RepoInterfaces;
+using FreightManagement.Repositories.RepoInterfaces;
 
-namespace FreightManagement.MainRepositories.Repository
+namespace FreightManagement.Repositories.Repository
 {
     public class ThongKeDoanhThusRepository : IThongKeDoanhThusRepository
     {
@@ -23,6 +23,11 @@ namespace FreightManagement.MainRepositories.Repository
                 .Include(t => t.DonHang)
                 .OrderByDescending(t => t.Ngay)
                 .ToListAsync();
+        }
+        public async Task AddThongKeDoanhThu(ThongKeDoanhThu tkdt)
+        {
+            _db.ThongKeDoanhThus.Add(tkdt);
+            await _db.SaveChangesAsync();
         }
     }
 }

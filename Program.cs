@@ -1,9 +1,10 @@
 ﻿using FreightManagement.Data;
-using FreightManagement.MainRepositories.RepoInterfaces;
-using FreightManagement.MainRepositories.Repository;
-using FreightManagement.Service;
+using FreightManagement.Repositories.RepoInterfaces;
+using FreightManagement.Repositories.Repository;
+using FreightManagement.Services.Service;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
+using FreightManagement.Services.IServices;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,11 +28,11 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 builder.Services.AddAuthorization();
 
 // ── Services ──────────────────────────────────────────────────────
-builder.Services.AddScoped<AccountService>();
-builder.Services.AddScoped<AdminService>();
-builder.Services.AddScoped<DriverService>();
-builder.Services.AddScoped<OrdersService>();
-builder.Services.AddScoped<WarehouseService>();
+builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped<IAdminService, AdminService>();
+builder.Services.AddScoped<IDriverService, DriverService>();
+builder.Services.AddScoped<IOrdersService, OrdersService>();
+builder.Services.AddScoped<IWarehouseService, WarehouseService>();
 
 // ── Repositories ──────────────────────────────────────────────────
 builder.Services.AddScoped<IUsersRepository, UsersRepository>();

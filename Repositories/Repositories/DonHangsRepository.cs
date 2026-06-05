@@ -3,9 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using FreightManagement.Models;
 using FreightManagement.DTOs;
 using System.Runtime.CompilerServices;
-using FreightManagement.MainRepositories.RepoInterfaces;
+using FreightManagement.Repositories.RepoInterfaces;
 
-namespace FreightManagement.MainRepositories.Repository
+namespace FreightManagement.Repositories.Repository
 {
     public class DonHangsRepository : IDonHangsRepository
     {
@@ -128,7 +128,7 @@ namespace FreightManagement.MainRepositories.Repository
                 .ToListAsync();
         }
 
-        public async Task<DonHang> TaixeGetDonHangsByMadonAndMaTX(int madon, int MaTX)
+        public async Task<DonHang?> TaixeGetDonHangsByMadonAndMaTX(int madon, int MaTX)
         {
             return await _db.DonHangs
                 .FirstOrDefaultAsync(d => d.MaDon == madon && d.MaTX == MaTX);
@@ -164,7 +164,7 @@ namespace FreightManagement.MainRepositories.Repository
             await _db.SaveChangesAsync();
         }
 
-        public async Task<DonHang> OrdersGetDonHangsIncludeByMaDonAndMaKH(int id, int userId)
+        public async Task<DonHang?> OrdersGetDonHangsIncludeByMaDonAndMaKH(int id, int userId)
         {
             return await _db.DonHangs
                 .Include(d => d.TaiXe)
@@ -173,7 +173,7 @@ namespace FreightManagement.MainRepositories.Repository
                 .FirstOrDefaultAsync(d => d.MaDon == id && d.MaKH == userId);
         }
 
-        public async Task<DonHang> OrdersGetDonHangsByMaDonAndMaKH(int id, int userId)
+        public async Task<DonHang?> OrdersGetDonHangsByMaDonAndMaKH(int id, int userId)
         {
             return await _db.DonHangs
                 .FirstOrDefaultAsync(d => d.MaDon == id && d.MaKH == userId);
@@ -196,7 +196,7 @@ namespace FreightManagement.MainRepositories.Repository
                 .ToListAsync();
         }
 
-        public async Task<DonHang> WarehouseGetDonHangsToNhanVaoKho(int madon)
+        public async Task<DonHang?> WarehouseGetDonHangsToNhanVaoKho(int madon)
         {
             return await _db.DonHangs.FindAsync(madon);
         }

@@ -1,15 +1,16 @@
 ﻿using FreightManagement.DTOs;
-using FreightManagement.Service;
+using FreightManagement.Services.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using FreightManagement.Services.IServices;
 
 namespace FreightManagement.MainControllers
 {
     [Authorize(Roles = "KhachHang")]
     public class OrdersController : Controller
     {
-        private readonly OrdersService _os;
-        public OrdersController(OrdersService os)
+        private readonly IOrdersService _os;
+        public OrdersController(IOrdersService os)
         {
             _os = os;
         }
@@ -35,6 +36,8 @@ namespace FreightManagement.MainControllers
             return View(orders);
         }
 
+        // Trường
+
         public async Task<IActionResult> Create()
         {
             var userId = int.Parse(User.FindFirst("UserId")!.Value);
@@ -46,22 +49,14 @@ namespace FreightManagement.MainControllers
             return View();
         }
 
+        // Trường
+
         [HttpPost]
         public async Task<IActionResult> Create(CreateOrderDTO obj)
         {
             var userId = int.Parse(User.FindFirst("UserId")!.Value);
             var result = await _os.CreateOrderService(userId, obj);
-            if (!result.success)
-            {
-                var user = await _os.GetUserById(userId);
-                ViewBag.HoTen = user?.HoTen;
-                ViewBag.SoDienThoai = user?.SoDienThoai;
-                ViewBag.DiaChi = user?.DiaChi;
-                ViewBag.Provinces = Provinces;
-                ViewBag.Error = result.message;
-                return View(obj);
-            }
-            TempData["Success"] = result.message;
+            TempData["Success"] = result;
             return RedirectToAction("Index");
         }
 
@@ -73,6 +68,10 @@ namespace FreightManagement.MainControllers
             return View(result.order);
         }
 
+
+        // Trường
+
+        [HttpPost]
         public async Task<IActionResult> Cancel(int id)
         {
             var userId = int.Parse(User.FindFirst("UserId")!.Value);

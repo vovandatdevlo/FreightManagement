@@ -1,13 +1,14 @@
-﻿using FreightManagement.MainRepositories.RepoInterfaces;
-using FreightManagement.MainRepositories.Repository;
+﻿using FreightManagement.Repositories.RepoInterfaces;
+using FreightManagement.Repositories.Repository;
 using FreightManagement.Models;
 using System.Security.Cryptography;
 using System.Text;
 using FreightManagement.DTOs;
+using FreightManagement.Services.IServices;
 
-namespace FreightManagement.Service
+namespace FreightManagement.Services.Service
 {
-    public class AccountService
+    public class AccountService : IAccountService
     {
         private readonly IUsersRepository _UsersRepo;
         public AccountService(IUsersRepository UsersRepo)
@@ -26,6 +27,9 @@ namespace FreightManagement.Service
                 return true;
             return false;
         }
+
+        // Trường
+
         public async Task<bool> IsExistObject(string email)
         {
             if (await _UsersRepo.CheckExistUserByEmail(email))
@@ -44,6 +48,9 @@ namespace FreightManagement.Service
             var hash = sha.ComputeHash(bytes);
             return Convert.ToHexString(hash);
         }
+
+        // Trường
+
         public async Task AddUser(Users user)
         {
             user.PasswordHash = HashPassword(user.PasswordHash);
@@ -67,6 +74,9 @@ namespace FreightManagement.Service
         {
             return await _UsersRepo.GetFirstUserById(userId);
         }
+
+        // Trường
+
         public async Task<(bool isValidInfor, string message)> RegisterService(AccountRegisterDTO obj)
         {
             if (obj.password != obj.confirmPassword)
@@ -109,6 +119,9 @@ namespace FreightManagement.Service
             await _UsersRepo.UpdateUser(user);
             return (true, "Cập nhật thông tin thành công!");
         }
+
+        // Trường
+
         public async Task<(bool success, string message)> ChangePasswordMessage(int userId, ChangePasswordDTO obj)
         {
             var user = await _UsersRepo.GetUserById(userId);

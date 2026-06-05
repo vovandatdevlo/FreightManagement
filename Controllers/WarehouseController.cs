@@ -1,9 +1,10 @@
 ﻿using FreightManagement.Data;
 using FreightManagement.Models;
-using FreightManagement.Service;
+using FreightManagement.Services.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using FreightManagement.Services.IServices;
 using System;
 
 namespace FreightManagement.MainControllers
@@ -11,8 +12,8 @@ namespace FreightManagement.MainControllers
     [Authorize(Roles = "QuanLyKho")]
     public class WarehouseController : Controller
     {
-        private readonly WarehouseService _ws;
-        public WarehouseController(WarehouseService ws) { _ws = ws; }
+        private readonly IWarehouseService _ws;
+        public WarehouseController(IWarehouseService ws) { _ws = ws; }
 
         private int GetUid() => int.Parse(User.FindFirst("UserId")!.Value);
 
@@ -22,9 +23,11 @@ namespace FreightManagement.MainControllers
             ViewBag.DangTrongKho = await _ws.GetDonHangsCountByTrangThai("Đã vào kho", GetUid());
             ViewBag.DangVanChuyen = await _ws.GetDonHangsCountByTrangThai("Đang vận chuyển", GetUid());
             ViewBag.DaGiao = await _ws.WarehouseGetDonHangsCountByTrangThaiAndNgayCapNhat("Đã giao", GetUid());
-            ViewBag.GiaoThatBai = await _ws.GetDonHangsCountByTrangThai("Giao thất bại", GetUid());
+            //ViewBag.GiaoThatBai = await _ws.GetDonHangsCountByTrangThai("Giao thất bại", GetUid());
             return View();
         }
+
+        // Trường
 
         public async Task<IActionResult> Incoming()
         {
@@ -32,6 +35,8 @@ namespace FreightManagement.MainControllers
             ViewBag.Khos = result.Warehouses;
             return View(result.orders);
         }
+
+        // Trường
 
         [HttpPost]
         public async Task<IActionResult> NhanVaoKho(int maDon, int maKho)
@@ -48,6 +53,8 @@ namespace FreightManagement.MainControllers
             ViewBag.TaiXeDict = result.Item1;
             return View(result.ordersList);
         }
+
+        // Trường
 
         [HttpPost]
         public async Task<IActionResult> GanTaiXe(int maDon, int maTX)

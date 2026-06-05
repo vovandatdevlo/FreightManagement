@@ -1,13 +1,14 @@
-﻿using FreightManagement.MainRepositories.RepoInterfaces;
-using FreightManagement.MainRepositories.Repository;
+﻿using FreightManagement.Repositories.RepoInterfaces;
+using FreightManagement.Repositories.Repository;
 using FreightManagement.Models;
 using FreightManagement.DTOs;
 using System.Security.Cryptography;
 using System.Text;
+using FreightManagement.Services.IServices;
 
-namespace FreightManagement.Service
+namespace FreightManagement.Services.Service
 {
-    public class AdminService
+    public class AdminService : IAdminService
     {
         private readonly IDonHangsRepository _OrderRepo;
         private readonly IUsersRepository _UsersRepo;

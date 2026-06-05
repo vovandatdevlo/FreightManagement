@@ -1,10 +1,10 @@
 ﻿using FreightManagement.Data;
-using FreightManagement.MainRepositories.RepoInterfaces;
+using FreightManagement.Repositories.RepoInterfaces;
 using FreightManagement.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Runtime.CompilerServices;
 
-namespace FreightManagement.MainRepositories.Repository
+namespace FreightManagement.Repositories.Repository
 {
     public class KhoHangsRepository : IKhoHangsRepository
     {

@@ -1,8 +1,8 @@
 ﻿using FreightManagement.Data;
-using FreightManagement.MainRepositories.RepoInterfaces;
+using FreightManagement.Repositories.RepoInterfaces;
 using FreightManagement.Models;
 
-namespace FreightManagement.MainRepositories.Repository
+namespace FreightManagement.Repositories.Repository
 {
     public class LichSuTrangThaisRepository : ILichSuTrangThaisRepository
     {

@@ -1,6 +1,6 @@
 ﻿using FreightManagement.Models;
 
-namespace FreightManagement.MainRepositories.RepoInterfaces
+namespace FreightManagement.Repositories.RepoInterfaces
 {
     public interface IHangTrongKhosRepository
     {
@@ -10,5 +10,7 @@ namespace FreightManagement.MainRepositories.RepoInterfaces
         Task<List<HangTrongKho>> GetStockByMaQLK(int maQLK);
 
         Task<List<HangTrongKho>> GetExportedByMaQLK(int maQLK);
+        Task<HangTrongKho?> GetHangTrongKhoByMaDon(int maDon);
+        Task UpdateHangTrongKho(HangTrongKho h);
     }
 }

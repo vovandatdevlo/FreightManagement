@@ -5,15 +5,15 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace FreightManagement.MainRepositories.RepoInterfaces
+namespace FreightManagement.Repositories.RepoInterfaces
 {
     public interface IUsersRepository
     {
-        Task<Users> GetUserByAccount(string email, string passwordHash);
+        Task<Users?> GetUserByAccount(string email, string passwordHash);
         Task<bool> CheckExistUserByEmail(string email);
         Task AddUser(Users u);
-        Task<Users> GetUserByRoleAndUserID(int UserId);
-        Task<Users> GetUserById(int UserId);
+        Task<Users?> GetUserByRoleAndUserID(int UserId);
+        Task<Users?> GetUserById(int UserId);
         Task<Users> GetFirstUserById(int UserId);
         Task UpdateUser(Users user);
         Task<int> GetUsersCountByRoleId(int roleId);

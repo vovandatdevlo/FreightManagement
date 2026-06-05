@@ -1,11 +1,12 @@
 ﻿using FreightManagement.DTOs;
-using FreightManagement.MainRepositories;
-using FreightManagement.MainRepositories.RepoInterfaces;
+using FreightManagement.Repositories;
+using FreightManagement.Repositories.RepoInterfaces;
 using FreightManagement.Models;
+using FreightManagement.Services.IServices;
 
-namespace FreightManagement.Service
+namespace FreightManagement.Services.Service
 {
-    public class OrdersService
+    public class OrdersService : IOrdersService
     {
         private readonly IDonHangsRepository _OrdersRepo;
         private readonly IUsersRepository _UsersRepo;
@@ -21,17 +22,15 @@ namespace FreightManagement.Service
         public async Task<List<DonHang>> OrdersGetDonHangsByMaKHAndDescending(int uid)
             => await _OrdersRepo.OrdersGetDonHangsByMaKHAndDescending(uid);
 
+        // Trường
+
         public async Task<Users> GetUserById(int UserId)
             => await _UsersRepo.GetUserById(UserId);
 
-        public async Task<(bool success, string message)> CreateOrderService(int userId, CreateOrderDTO obj)
+        // Trường
+
+        public async Task<string> CreateOrderService(int userId, CreateOrderDTO obj)
         {
-            // Kiểm tra SĐT người nhận đã được dùng trong đơn nào chưa
-            if (!string.IsNullOrWhiteSpace(obj.SdtNguoiNhan))
-            {
-                if (await _OrdersRepo.CheckExistSdtNguoiNhan(obj.SdtNguoiNhan.Trim()))
-                    return (false, "Số điện thoại người nhận này đã được sử dụng trong một đơn hàng khác.");
-            }
 
             int donGia = obj.LoaiHang switch
             {
@@ -61,7 +60,7 @@ namespace FreightManagement.Service
                 GhiChu = "Đơn hàng đã được đặt thành công",
                 CapNhatBoi = userId,
             });
-            return (true, $"Đặt đơn hàng #DH{order.MaDon:D5} thành công!");
+            return $"Đặt đơn hàng #DH{order.MaDon:D5} thành công!";
         }
 
         public async Task<(bool IsValidOrder, DonHang order)> DetailOrderService(int id, int userId)
@@ -70,6 +69,8 @@ namespace FreightManagement.Service
             if (dh == null) return (false, null!);
             return (true, dh);
         }
+
+        // Trường
 
         // ── YC2a FIX: thêm UpdateOrder sau khi set TrangThai ──────
         public async Task<(bool IsValidOrder, string message)> CancelService(int id, int userId)

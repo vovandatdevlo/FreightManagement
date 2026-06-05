@@ -1,14 +1,15 @@
-﻿using FreightManagement.Service;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using FreightManagement.DTOs;
+using FreightManagement.Services.Service;
+using FreightManagement.Services.IServices;
 
 namespace FreightManagement.MainControllers
 {
     [Authorize(Roles = "Admin")]
     public class AdminController : Controller
     {
-        private readonly AdminService _ads;
+        private readonly IAdminService _ads;
 
         private static readonly List<string> TrangThaiList = new()
         {
@@ -16,7 +17,7 @@ namespace FreightManagement.MainControllers
             "Đã giao", "Giao thất bại", "Đã hủy"
         };
 
-        public AdminController(AdminService ads)
+        public AdminController(IAdminService ads)
         {
             _ads = ads;
         }

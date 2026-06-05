@@ -1,23 +1,24 @@
 ﻿using FreightManagement.DTOs;
 using FreightManagement.Models;
-using FreightManagement.Service;
+using FreightManagement.Services.Service;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using FreightManagement.Services.IServices;
 
 namespace FreightManagement.MainControllers
 {
     public class AccountController : Controller
     {
-        private readonly AccountService _acc;
-        public AccountController(AccountService acc)
+        private readonly IAccountService _acc;
+        public AccountController(IAccountService acc)
         {
             _acc = acc;
         }
 
-        // ── ĐĂNG NHẬP ──────────────────────────────────────────────
+        // ĐĂNG NHẬP
         public IActionResult Login() => View();
 
         [HttpPost]
@@ -66,36 +67,14 @@ namespace FreightManagement.MainControllers
             };
         }
 
-        // ── ĐĂNG KÝ ────────────────────────────────────────────────
+        //  ĐĂNG KÝ
         public IActionResult Register() => View();
+
+        // Trường
 
         [HttpPost]
         public async Task<IActionResult> Register(AccountRegisterDTO obj)
         {
-            //if (obj.password != obj.confirmPassword)
-            //{
-            //    ViewBag.Error = "Mật khẩu xác nhận không khớp.";
-            //    return View();
-            //}
-
-            //if (await _acc.IsExistObject(obj.email))
-            //{
-            //    ViewBag.Error = "Email này đã được đăng ký.";
-            //    return View();
-            //}
-
-            //var user = new User
-            //{
-            //    HoTen = obj.hoTen,
-            //    Email = obj.email,
-            //    PasswordHash = obj.password,
-            //    SoDienThoai = obj.soDienThoai,
-            //    DiaChi = obj.diaChi,
-            //    RoleId = 2 // KhachHang
-            //};
-
-            //await _acc.AddUser(user);
-            //TempData["Success"] = "Đăng ký thành công! Vui lòng đăng nhập.";
             var result = await _acc.RegisterService(obj);
             if (!result.isValidInfor)
             {
@@ -106,17 +85,17 @@ namespace FreightManagement.MainControllers
             return RedirectToAction("Login");
         }
 
-        // ── ĐĂNG XUẤT ──────────────────────────────────────────────
+        // ĐĂNG XUẤT 
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("Login");
         }
 
-        // ── ACCESS DENIED ──────────────────────────────────────────
+        //  ACCESS DENIED
         public IActionResult AccessDenied() => View();
 
-        // ── THÔNG TIN CÁ NHÂN ──────────────────────────────────────
+        //  THÔNG TIN CÁ NHÂN
         [Authorize]
         public async Task<IActionResult> Profile()
         {
@@ -126,7 +105,7 @@ namespace FreightManagement.MainControllers
             return View(user);
         }
 
-        // ── CẬP NHẬT THÔNG TIN ─────────────────────────────────────
+        // CẬP NHẬT THÔNG TIN 
         [HttpPost]
         [Authorize]
         public async Task<IActionResult> UpdateProfile(UpdateProfileDTO obj)
@@ -154,9 +133,11 @@ namespace FreightManagement.MainControllers
             return RedirectToAction("Profile");
         }
 
-        // ── ĐỔI MẬT KHẨU ───────────────────────────────────────────
+        //  ĐỔI MẬT KHẨU
         [Authorize]
         public IActionResult ChangePassword() => View();
+
+        // Trường
 
         [HttpPost]
         [Authorize]

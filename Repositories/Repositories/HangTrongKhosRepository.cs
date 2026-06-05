@@ -1,9 +1,10 @@
 ﻿using FreightManagement.Models;
 using FreightManagement.Data;
 using Microsoft.EntityFrameworkCore;
-using FreightManagement.MainRepositories.RepoInterfaces;
+using FreightManagement.Repositories.RepoInterfaces;
+using System.Runtime.CompilerServices;
 
-namespace FreightManagement.MainRepositories.Repository
+namespace FreightManagement.Repositories.Repository
 {
     public class HangTrongKhosRepository : IHangTrongKhosRepository
     {
@@ -42,7 +43,8 @@ namespace FreightManagement.MainRepositories.Repository
                 .Include(h => h.DonHang).ThenInclude(d => d!.KhachHang)
                 .Include(h => h.DonHang).ThenInclude(d => d!.TaiXe)
                 .Where(h => h.KhoHang!.MaQLK == maQLK) 
-                .Where(h => h.ThoiGianXuatKho == null)  
+                .Where(h => h.ThoiGianXuatKho == null)
+                .Where(h => h.DonHang.TrangThai == "Đã vào kho")
                 .OrderBy(h => h.ThoiGianVaoKho)
                 .ToListAsync();
         }
@@ -53,10 +55,21 @@ namespace FreightManagement.MainRepositories.Repository
                 .Include(h => h.KhoHang)
                 .Include(h => h.DonHang).ThenInclude(d => d!.KhachHang)
                 .Include(h => h.DonHang).ThenInclude(d => d!.TaiXe)
-                .Where(h => h.KhoHang!.MaQLK == maQLK)  
-                .Where(h => h.ThoiGianXuatKho != null) 
+                .Where(h => h.KhoHang!.MaQLK == maQLK)   
+                .Where(h => h.DonHang.TrangThai == "Đang vận chuyển")
                 .OrderByDescending(h => h.ThoiGianXuatKho)
                 .ToListAsync();
+        }
+        public async Task<HangTrongKho?> GetHangTrongKhoByMaDon(int maDon)
+        {
+            return await _db.HangTrongKhos
+                .FirstOrDefaultAsync(d => d.MaDon == maDon)!;
+        }
+
+        public async Task UpdateHangTrongKho(HangTrongKho h)
+        {
+            _db.HangTrongKhos.Update(h);
+            await _db.SaveChangesAsync();
         }
     }
 }

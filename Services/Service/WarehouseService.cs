@@ -1,11 +1,12 @@
 ﻿using FreightManagement.DTOs;
-using FreightManagement.MainRepositories.RepoInterfaces;
-using FreightManagement.MainRepositories.Repository;
+using FreightManagement.Repositories.RepoInterfaces;
+using FreightManagement.Repositories.Repository;
 using FreightManagement.Models;
+using FreightManagement.Services.IServices;
 
-namespace FreightManagement.Service
+namespace FreightManagement.Services.Service
 {
-    public class WarehouseService
+    public class WarehouseService : IWarehouseService
     {
         private readonly IDonHangsRepository _OrdersRepo;
         private readonly IKhoHangsRepository _WareRepo;
@@ -48,6 +49,8 @@ namespace FreightManagement.Service
             return await _OrdersRepo.WarehouseGetDonHangsCountByTrangThaiAndNgayCapNhat(trangthai, MaQLK);
         }
 
+        // Trường Incoming
+
         public async Task<(List<DonHang> orders, List<KhoHang> Warehouses)> IncomingService(string trangthai, int uid)
         {
             //var user = await _UsersRepo.GetUserById(uid);
@@ -67,6 +70,8 @@ namespace FreightManagement.Service
             }
             return (Orders, tempWarehouses);
         }
+
+        // Trường NhanVaoKho
 
         public async Task<(bool IsValidItem, string message)> NhanVaoKhoService(int uid, int madon, int makho)
         {
@@ -119,6 +124,8 @@ namespace FreightManagement.Service
             }
             return (taixeDict, ordersList);
         }
+
+        // Trường GanTaixe
 
         public async Task<(bool valid, string message)> GanTaiXeService(int uid, int maDon, int maTX)
         {

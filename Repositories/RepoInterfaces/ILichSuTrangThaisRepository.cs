@@ -1,6 +1,6 @@
 ﻿using FreightManagement.Models;
 
-namespace FreightManagement.MainRepositories.RepoInterfaces
+namespace FreightManagement.Repositories.RepoInterfaces
 {
     public interface ILichSuTrangThaisRepository
     {
