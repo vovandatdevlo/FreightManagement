@@ -192,6 +192,10 @@
                             <input type="radio" name="LoaiHang" value="Fresh" id="fresh" hidden onchange="doiLoaiHang()">
                             <label for="fresh" class="btn btn-outline-success">🌱 Fresh</label>
 
+                            <input type="radio" name="LoaiHang" value="Khac" id="khac"
+                                   hidden onchange="doiLoaiHang()">
+                            <label for="khac" class="btn btn-outline-danger">📦 Khác</label>
+
                         </div>
                     </div>
 
@@ -320,7 +324,11 @@
                 labelDG.textContent = "Đơn giá (VNĐ/kiện)";
                 donGia.value = 30000;
             }
-
+            else if (loai === "Khac") {
+                labelSL.textContent = "Khối lượng (kg)";
+                labelDG.textContent = "Đơn giá (VNĐ/kg)";
+                donGia.value = 50000;
+            }
             tinhChiPhi();
         }
 

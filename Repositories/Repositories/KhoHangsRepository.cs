@@ -23,13 +23,26 @@ namespace FreightManagement.Repositories.Repository
                 .ToListAsync();
         }
 
+        public async Task<List<KhoHang>> QuanLyKhoGetMyWarehouses(int uid)
+        {
+            return await _db.KhoHangs
+                .Include(k => k.QuanLyKho)
+                .Where(k => k.MaQLK == uid)
+                .OrderBy(k => k.TenKho)
+                .ToListAsync();
+        }
+
         public async Task<List<KhoHang>> WarehouseGetKhoHangToIncoming(int uid)
         {
             return await _db.KhoHangs
                 .Where(k => k.MaQLK == uid)
                 .ToListAsync();
         }
-
+        public async Task<KhoHang> GetKhoHangByDiaChiKho (string diachi)
+        {
+            return await _db.KhoHangs
+                .FirstOrDefaultAsync(k => k.DiaChiKho == diachi);
+        }
         public async Task<KhoHang> WarehouseGetKhoHangToNhanVaoKho(int makho)
         {
             return await _db.KhoHangs.FindAsync(makho);

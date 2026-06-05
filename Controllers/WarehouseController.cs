@@ -66,10 +66,17 @@ namespace FreightManagement.MainControllers
         }
 
         // ── YC4: Danh sách đơn giao thất bại ─────────────────────────────
-        public async Task<IActionResult> Failed()
+        //public async Task<IActionResult> Failed()
+        //{
+        //    var orders = await _ws.GetDonHangsGiaoThatBai();
+        //    return View(orders);
+        //}
+
+        [HttpGet]
+        public async Task<IActionResult> MyWarehouses()
         {
-            var orders = await _ws.GetDonHangsGiaoThatBai();
-            return View(orders);
+            var dsKho = await _ws.QuanLyKhoGetMyWarehouses(GetUid());
+            return View(dsKho);
         }
 
         // ── YC4: Xử lý giao lại ───────────────────────────────────────────

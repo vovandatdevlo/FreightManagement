@@ -90,6 +90,15 @@ namespace FreightManagement.Services.Service
             await _OrdersRepo.UpdateOrder(order);
 
             await _HTKRepo.WarehouseAdd(new HangTrongKho { MaDon = madon, MaKho = makho });
+
+            var khohang = await _WareRepo.GetKhoHangByDiaChiKho(order.DiaChiGui);
+
+            if (order.DonGia == 25000 || order.DonGia == 50000)
+                khohang.SoLuongHienTai += 1;
+
+            else
+                khohang.SoLuongHienTai += order.SoLuong;
+
             await _hisRepo.DriverAddLichSuTrangThai(new LichSuTrangThai
             {
                 MaDon = madon,
@@ -98,6 +107,11 @@ namespace FreightManagement.Services.Service
                 CapNhatBoi = uid,
             });
             return (true, $"Đã nhập đơn #DH{madon:D5} vào {warehouse.TenKho}!");
+        }
+
+        public async Task<List<KhoHang>> QuanLyKhoGetMyWarehouses(int uid)
+        {
+            return await _WareRepo.QuanLyKhoGetMyWarehouses(uid);
         }
 
         public async Task<(Dictionary<int, List<Users>>, List<DonHang> ordersList)> AssignService(int MaQLK)

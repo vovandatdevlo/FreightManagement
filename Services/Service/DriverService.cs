@@ -12,13 +12,15 @@ namespace FreightManagement.Services.Service
         private readonly ILichSuTrangThaisRepository _HisRepo;
         private readonly IThongKeDoanhThusRepository _TkRepo;
         private readonly IHangTrongKhosRepository _HTKRepo;
+        private readonly IKhoHangsRepository _WareRepo;
 
-        public DriverService(IDonHangsRepository OrdersRepo, ILichSuTrangThaisRepository HisRepo, IThongKeDoanhThusRepository TkRepo, IHangTrongKhosRepository HTKRepo)
+        public DriverService(IDonHangsRepository OrdersRepo, ILichSuTrangThaisRepository HisRepo, IThongKeDoanhThusRepository TkRepo, IHangTrongKhosRepository HTKRepo, IKhoHangsRepository WareRepo)
         {
             _OrdersRepo = OrdersRepo;
             _HisRepo = HisRepo;
             _TkRepo = TkRepo;
             _HTKRepo = HTKRepo;
+            _WareRepo = WareRepo;
         }
 
         public async Task<int> GetDonHangsCountByTrangThaiAndId(int uid, string trangthai)
@@ -37,6 +39,14 @@ namespace FreightManagement.Services.Service
             var HTK = await _HTKRepo.GetHangTrongKhoByMaDon(maDon);
 
             if (order == null) return (false, "");
+
+            var khohang = await _WareRepo.GetKhoHangByDiaChiKho(order.DiaChiGui);
+
+            if (order.DonGia == 25000)
+                khohang.SoLuongHienTai -= 1;
+
+            else
+                khohang.SoLuongHienTai -= order.SoLuong;
 
             order.TrangThai = "Đang vận chuyển";
 

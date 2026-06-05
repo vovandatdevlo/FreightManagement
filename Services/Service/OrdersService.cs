@@ -11,12 +11,15 @@ namespace FreightManagement.Services.Service
         private readonly IDonHangsRepository _OrdersRepo;
         private readonly IUsersRepository _UsersRepo;
         private readonly ILichSuTrangThaisRepository _hisRepo;
+        private readonly IKhoHangsRepository _WareRepo;
 
-        public OrdersService(IDonHangsRepository OrdersRepo, IUsersRepository UsersRepo, ILichSuTrangThaisRepository hisRepo)
+        public OrdersService(IDonHangsRepository OrdersRepo, IUsersRepository UsersRepo, ILichSuTrangThaisRepository hisRepo, IKhoHangsRepository WareRepo)
         {
             _OrdersRepo = OrdersRepo;
             _UsersRepo = UsersRepo;
             _hisRepo = hisRepo;
+            _WareRepo = WareRepo;
+
         }
 
         public async Task<List<DonHang>> OrdersGetDonHangsByMaKHAndDescending(int uid)
@@ -36,7 +39,8 @@ namespace FreightManagement.Services.Service
             {
                 "HangHoa" => 25000,
                 "ThuTu" => 20000,
-                _ => 30000
+                "Fresh" => 30000,
+                _ => 50000,
             };
             var user = await _UsersRepo.GetUserById(userId);
             var order = new DonHang
@@ -53,13 +57,14 @@ namespace FreightManagement.Services.Service
                 TrangThai = "Đang xử lý"
             };
             await _OrdersRepo.OrdersAddDonHangs(order);
-            await _hisRepo.DriverAddLichSuTrangThai(new LichSuTrangThai
-            {
-                MaDon = order.MaDon,
-                TrangThai = "Đang xử lý",
-                GhiChu = "Đơn hàng đã được đặt thành công",
-                CapNhatBoi = userId,
-            });
+
+                await _hisRepo.DriverAddLichSuTrangThai(new LichSuTrangThai
+                {
+                    MaDon = order.MaDon,
+                    TrangThai = "Đang xử lý",
+                    GhiChu = "Đơn hàng đã được đặt thành công",
+                    CapNhatBoi = userId,
+                });
             return $"Đặt đơn hàng #DH{order.MaDon:D5} thành công!";
         }
 
