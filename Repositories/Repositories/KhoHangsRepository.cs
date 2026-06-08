@@ -43,10 +43,10 @@ namespace FreightManagement.Repositories.Repository
             return await _db.KhoHangs
                 .FirstOrDefaultAsync(k => k.DiaChiKho == diachi);
         }
-        public async Task<KhoHang> WarehouseGetKhoHangToNhanVaoKho(int makho)
-        {
-            return await _db.KhoHangs.FindAsync(makho);
-        }
+        //public async Task<KhoHang> WarehouseGetKhoHangToNhanVaoKho(int makho)
+        //{
+        //    return await _db.KhoHangs.FindAsync(makho);
+        //}
 
         public async Task<int> AdminGetTongKho()
         {

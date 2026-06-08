@@ -76,7 +76,8 @@ namespace FreightManagement.Services.Service
         public async Task<(bool IsValidItem, string message)> NhanVaoKhoService(int uid, int madon, int makho)
         {
             var order = await _OrdersRepo.WarehouseGetDonHangsToNhanVaoKho(madon);
-            var warehouse = await _WareRepo.WarehouseGetKhoHangToNhanVaoKho(makho);
+            //var warehouse = await _WareRepo.WarehouseGetKhoHangToNhanVaoKho(makho);
+            var warehouse = await _WareRepo.GetKhoHangById(makho);
 
             // Kiểm tra kho này có thuộc về quản lý kho này không
             if (warehouse == null || warehouse.MaQLK != uid)
@@ -85,19 +86,31 @@ namespace FreightManagement.Services.Service
             if (order == null)
                 return (false, "");
 
+            if (order.DonGia == 25000 || order.DonGia == 50000)
+            {
+                if (warehouse.SoLuongHienTai + 1 > warehouse.SucChua)
+                    return (false, "Kho đã đầy, vui lòng vận chuyển bớt hàng để có thể thêm hàng vào kho.");
+            }
+
+            else
+            {
+                if (warehouse.SoLuongHienTai + order.SoLuong > warehouse.SucChua)
+                    return (false, "Kho đã đầy, vui lòng vận chuyển bớt hàng để có thể thêm hàng vào kho.");
+            }
+
             order.TrangThai = "Đã vào kho";
             order.MaQLK = uid;
             await _OrdersRepo.UpdateOrder(order);
 
             await _HTKRepo.WarehouseAdd(new HangTrongKho { MaDon = madon, MaKho = makho });
 
-            var khohang = await _WareRepo.GetKhoHangByDiaChiKho(order.DiaChiGui);
+            var khohang = await _WareRepo.GetKhoHangById(makho);
 
             if (order.DonGia == 25000 || order.DonGia == 50000)
-                khohang.SoLuongHienTai += 1;
+                warehouse.SoLuongHienTai += 1;
 
             else
-                khohang.SoLuongHienTai += order.SoLuong;
+                warehouse.SoLuongHienTai += order.SoLuong;
 
             await _hisRepo.DriverAddLichSuTrangThai(new LichSuTrangThai
             {

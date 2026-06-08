@@ -42,8 +42,11 @@ namespace FreightManagement.MainControllers
         public async Task<IActionResult> NhanVaoKho(int maDon, int maKho)
         {
             var result = await _ws.NhanVaoKhoService(GetUid(), maDon, maKho);
-            if (!result.IsValidItem) return NotFound();
-            TempData["Success"] = result.message;
+            //if (!result.IsValidItem) return NotFound();
+            if (!result.IsValidItem)
+                TempData["Error"] = result.message;
+            else 
+                TempData["Success"] = result.message;
             return RedirectToAction("Incoming");
         }
 

@@ -40,9 +40,9 @@ namespace FreightManagement.Services.Service
 
             if (order == null) return (false, "");
 
-            var khohang = await _WareRepo.GetKhoHangByDiaChiKho(order.DiaChiGui);
+            var khohang = await _WareRepo.GetKhoHangById(HTK!.MaKho);
 
-            if (order.DonGia == 25000)
+            if (order.DonGia == 25000 || order.DonGia == 50000)
                 khohang.SoLuongHienTai -= 1;
 
             else
