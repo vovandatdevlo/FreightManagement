@@ -22,7 +22,10 @@ namespace FreightManagement.Models
         [Required, MaxLength(255), Display(Name = "Địa chỉ nhận")]
         public string DiaChiNhan { get; set; } = string.Empty;
 
-        [Required, MaxLength(20), Display(Name = "SĐT người nhận")]
+        [Required]
+        [StringLength(10, MinimumLength = 10)]
+        [RegularExpression(@"^\d{10}$", ErrorMessage = "Số điện thoại phải gồm đúng 10 chữ số")]
+        [Display(Name = "SĐT người nhận")]
         public string SdtNguoiNhan { get; set; } = string.Empty;
 
         [MaxLength(255), Display(Name = "Mô tả hàng")]
