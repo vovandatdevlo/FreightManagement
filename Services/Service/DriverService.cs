@@ -50,6 +50,8 @@ namespace FreightManagement.Services.Service
 
             order.TrangThai = "Đang vận chuyển";
 
+            order.NgayCapNhat = DateTime.Now;
+
             HTK!.ThoiGianXuatKho = DateTime.Now;
 
             await _HTKRepo.UpdateHangTrongKho(HTK);
@@ -75,6 +77,7 @@ namespace FreightManagement.Services.Service
             if (order == null) return (false, "");
 
             order.TrangThai = "Đã giao";
+            order.NgayCapNhat = DateTime.Now;
             await _OrdersRepo.UpdateOrder(order);
             await _TkRepo.AddThongKeDoanhThu(new ThongKeDoanhThu
             {
@@ -99,6 +102,7 @@ namespace FreightManagement.Services.Service
                 return (false, "Không thể báo thất bại cho đơn hàng này.");
 
             order.TrangThai = "Giao thất bại";
+            order.NgayCapNhat = DateTime.Now;
             await _OrdersRepo.UpdateOrder(order);
             await _HisRepo.DriverAddLichSuTrangThai(new LichSuTrangThai
             {

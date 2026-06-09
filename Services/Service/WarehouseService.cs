@@ -100,6 +100,7 @@ namespace FreightManagement.Services.Service
 
             order.TrangThai = "Đã vào kho";
             order.MaQLK = uid;
+            order.NgayCapNhat = DateTime.Now;
             await _OrdersRepo.UpdateOrder(order);
 
             await _HTKRepo.WarehouseAdd(new HangTrongKho { MaDon = madon, MaKho = makho });
@@ -162,6 +163,9 @@ namespace FreightManagement.Services.Service
                 return (false, "");
 
             order.MaTX = maTX;
+
+            order.NgayCapNhat = DateTime.Now;
+
             await _OrdersRepo.UpdateOrder(order);
 
             await _hisRepo.DriverAddLichSuTrangThai(new LichSuTrangThai

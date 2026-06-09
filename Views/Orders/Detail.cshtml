@@ -1,5 +1,10 @@
 ﻿@model FreightManagement.Models.DonHang
 @{
+    var donVi = (Model.DonGia == 25000 || Model.DonGia == 50000)
+        ? "kg"
+        : "kiện";
+}
+@{
     Layout = "~/Views/Shared/_Layout.cshtml";
     ViewData["Title"] = "Chi tiết đơn hàng";
 }
@@ -69,8 +74,8 @@
         <div class="form-card h-100">
             <div class="section-title"><i class="bi bi-box me-2"></i>Chi tiết hàng hóa</div>
             <div class="mb-2"><small style="color:#999">Mô tả</small><div>@(Model.MoTaHang ?? "Không có mô tả")</div></div>
-            <div class="mb-2"><small style="color:#999">Số lượng</small><div style="font-weight:600">@Model.SoLuong kiện</div></div>
-            <div class="mb-2"><small style="color:#999">Đơn giá</small><div>@Model.DonGia.ToString("N0") ₫/kiện</div></div>
+            <div class="mb-2"><small style="color:#999">Số lượng</small><div style="font-weight:600">@Model.SoLuong @donVi</div></div>
+            <div class="mb-2"><small style="color:#999">Đơn giá</small><div>@Model.DonGia.ToString("N0") ₫/@donVi</div></div>
             <div style="background:#e8f5e9;border-radius:10px;padding:14px;margin-top:12px">
                 <div style="font-size:.82rem;color:#555">Tổng chi phí vận chuyển</div>
                 <div style="font-size:1.6rem;font-weight:800;color:#1b5e20">@Model.ChiPhi.ToString("N0") ₫</div>
