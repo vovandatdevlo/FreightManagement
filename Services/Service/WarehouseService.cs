@@ -162,6 +162,9 @@ namespace FreightManagement.Services.Service
                 return (false, "");
 
             order.MaTX = maTX;
+
+            order.NgayCapNhat = DateTime.Now;
+
             await _OrdersRepo.UpdateOrder(order);
 
             await _hisRepo.DriverAddLichSuTrangThai(new LichSuTrangThai

@@ -75,6 +75,9 @@ namespace FreightManagement.Services.Service
             if (order == null) return (false, "");
 
             order.TrangThai = "Đã giao";
+
+            order.NgayCapNhat = DateTime.Now;
+
             await _OrdersRepo.UpdateOrder(order);
             await _TkRepo.AddThongKeDoanhThu(new ThongKeDoanhThu
             {
@@ -114,6 +117,9 @@ namespace FreightManagement.Services.Service
             }
 
             order.TrangThai = "Đã vào kho";
+
+            order.MaTX = null;
+
             await _OrdersRepo.UpdateOrder(order);
             await _HisRepo.DriverAddLichSuTrangThai(new LichSuTrangThai
             {
