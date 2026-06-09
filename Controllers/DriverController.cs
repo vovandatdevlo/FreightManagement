@@ -59,9 +59,9 @@ namespace FreightManagement.MainControllers
 
         // ── YC4: Tài xế báo giao thất bại ────────────────────────────────
         [HttpPost]
-        public async Task<IActionResult> GiaoThatBai(int maDon)
+        public async Task<IActionResult> GiaoThatBai(int maDon, string lyDo)
         {
-            var result = await _ds.GiaoThatBaiService(GetUid(), maDon);
+            var result = await _ds.GiaoThatBaiService(GetUid(), maDon, lyDo);
             if (!result.IsValidOrder)
                 TempData["Error"] = result.message;
             else

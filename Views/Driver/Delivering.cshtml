@@ -68,7 +68,8 @@
                             </button>
 
                             @* YC4: Giao thất bại *@
-                            <button type="submit" formaction="/Driver/GiaoThatBai" name="maDon" value="@d.MaDon" class="btn btn-warning btn-sm" onclick="return confirm('Xác nhận giao THẤT BẠI?\\nĐơn sẽ được trả về kho để xử lý lại.')">
+                            <button type="button" class="btn btn-warning btn-sm"
+                                    onclick="moModalThatBai(@d.MaDon)">
                                 <i class="bi bi-exclamation-circle me-1"></i>Thất bại
                             </button>
                         </form>
@@ -77,4 +78,48 @@
             }
         </tbody>
     </table>
+    <!-- Modal nhập lý do thất bại -->
+    <div id="modalThatBai" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center">
+        <div style="background:#fff;border-radius:12px;padding:28px;width:420px;max-width:90%">
+            <h6 style="margin-bottom:16px;font-weight:700"><i class="bi bi-exclamation-circle me-2" style="color:#e65100"></i>Xác nhận giao thất bại</h6>
+            <label style="font-size:.9rem;margin-bottom:6px;display:block">Lý do thất bại <span class="text-danger">*</span></label>
+            <textarea id="lyDoThatBai" class="form-control" rows="3" maxlength="255"
+                      placeholder="VD: Không liên lạc được người nhận, sai địa chỉ..."></textarea>
+            <div id="lyDoError" class="text-danger" style="font-size:.82rem;margin-top:4px;display:none">Vui lòng nhập lý do.</div>
+            <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px">
+                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="dongModal()">Hủy</button>
+                <button type="button" class="btn btn-warning btn-sm" onclick="xacNhanThatBai()">Xác nhận thất bại</button>
+            </div>
+        </div>
+    </div>
+
+    <form id="formThatBai" method="post" action="/Driver/GiaoThatBai" style="display:none">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="maDon" id="maDonThatBai" />
+        <input type="hidden" name="lyDo" id="lyDoHidden" />
+    </form>
+
+    @section Scripts {
+        <script>
+            function moModalThatBai(maDon) {
+                document.getElementById('maDonThatBai').value = maDon;
+                document.getElementById('lyDoThatBai').value = '';
+                document.getElementById('lyDoError').style.display = 'none';
+                const modal = document.getElementById('modalThatBai');
+                modal.style.display = 'flex';
+            }
+            function dongModal() {
+                document.getElementById('modalThatBai').style.display = 'none';
+            }
+            function xacNhanThatBai() {
+                const lyDo = document.getElementById('lyDoThatBai').value.trim();
+                if (!lyDo) {
+                    document.getElementById('lyDoError').style.display = 'block';
+                    return;
+                }
+                document.getElementById('lyDoHidden').value = lyDo;
+                document.getElementById('formThatBai').submit();
+            }
+        </script>
+    }
 </div>

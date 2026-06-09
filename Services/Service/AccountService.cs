@@ -109,6 +109,12 @@ namespace FreightManagement.Services.Service
                 if (await _UsersRepo.CheckExistDriverBySoDienThoai(obj.soDienThoai.Trim(), user.UserId))
                     return (false, "Số điện thoại này đã được sử dụng bởi tài xế khác.");
             }
+            if (!string.IsNullOrWhiteSpace(obj.soDienThoai))
+            {
+                var sdt = obj.soDienThoai.Trim();
+                if (sdt.Length != 10 || !sdt.All(char.IsDigit))
+                    return (false, "Số điện thoại không hợp lệ (phải đúng 10 số).");
+            }
 
             user.SoDienThoai = obj.soDienThoai?.Trim();
             user.DiaChi = obj.diaChi?.Trim();

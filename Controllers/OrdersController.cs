@@ -56,6 +56,18 @@ namespace FreightManagement.MainControllers
         {
             var userId = int.Parse(User.FindFirst("UserId")!.Value);
             var result = await _os.CreateOrderService(userId, obj);
+
+            if (result.StartsWith("Số điện thoại"))
+            {
+                var user = await _os.GetUserById(userId);
+                ViewBag.HoTen = user?.HoTen;
+                ViewBag.SoDienThoai = user?.SoDienThoai;
+                ViewBag.DiaChi = user?.DiaChi;
+                ViewBag.Provinces = Provinces;
+                ViewBag.Error = result;
+                return View(obj);
+            }
+
             TempData["Success"] = result;
             return RedirectToAction("Index");
         }

@@ -115,7 +115,10 @@
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Số điện thoại người nhận <span class="text-danger">*</span></label>
-                        <input type="text" name="SdtNguoiNhan" class="form-control" placeholder="0987654321" required />
+                        <input type="text" name="SdtNguoiNhan" id="sdtNguoiNhan" class="form-control" placeholder="0987654321"
+                               maxlength="10"
+                               oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,10)" required />
+                        <div id="sdtError" class="text-danger" style="font-size:.85rem;display:none"></div>
                     </div>
                     <div class="col-md-5">
                         <label class="form-label">Tỉnh/Thành phố nhận <span class="text-danger">*</span></label>
@@ -334,17 +337,25 @@
 
         // kiểm tra submit form
         document.querySelector("form").addEventListener("submit", function (e) {
+            const input = document.getElementById("sdtNguoiNhan");
+            const sdt = input.value.trim();
+            const errDiv = document.getElementById("sdtError");
 
-            const sdtNguoiNhan =
-                document.querySelector('input[name="SdtNguoiNhan"]').value.trim();
-
-            if (sdtNguoiNhan === sdtNguoiGui) {
+            if (sdt.length !== 10) {
                 e.preventDefault();
-
-                alert("Số điện thoại người nhận không được trùng với người gửi!");
-
-                document.querySelector('input[name="SdtNguoiNhan"]').focus();
+                errDiv.textContent = "Số điện thoại phải đúng 10 số.";
+                errDiv.style.display = "block";
+                input.focus();
+                return;
             }
+            if (sdt === sdtNguoiGui) {
+                e.preventDefault();
+                errDiv.textContent = "Số điện thoại người nhận không được trùng với người gửi!";
+                errDiv.style.display = "block";
+                input.focus();
+                return;
+            }
+            errDiv.style.display = "none";
         });
 
         window.onload = function () {

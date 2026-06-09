@@ -78,7 +78,9 @@
                     <div class="col-md-6">
                         <label class="form-label">Số điện thoại</label>
                         <input type="text" name="soDienThoai" class="form-control"
-                               value="@Model.SoDienThoai" placeholder="0912345678" />
+                               value="@Model.SoDienThoai" placeholder="0912345678"
+                               maxlength="10"
+                               oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,10)" />
                     </div>
 
                     <!-- Địa chỉ (tỉnh thành) -->

@@ -92,24 +92,40 @@ namespace FreightManagement.Services.Service
             return (true, $"Đã giao thành công đơn #DH{maDon:D5}!");
         }
 
-        public async Task<(bool IsValidOrder, string message)> GiaoThatBaiService(int uid, int maDon)
+        // SAU
+        public async Task<(bool IsValidOrder, string message)> GiaoThatBaiService(int uid, int maDon, string lyDo)
         {
             var order = await _OrdersRepo.TaixeGetDonHangsByMadonAndMaTX(maDon, uid);
             if (order == null || order.TrangThai != "Đang vận chuyển")
                 return (false, "Không thể báo thất bại cho đơn hàng này.");
 
-            order.TrangThai = "Giao thất bại";
+            // trả hàng về kho
+            var htk = await _HTKRepo.GetHangTrongKhoByMaDon(maDon);
+            if (htk != null)
+            {
+                var kho = await _WareRepo.GetKhoHangById(htk.MaKho);
+                if (order.DonGia == 25000 || order.DonGia == 50000)
+                    kho.SoLuongHienTai += 1;
+                else
+                    kho.SoLuongHienTai += order.SoLuong;
+
+                htk.ThoiGianXuatKho = null; // hàng quay lại kho
+                await _HTKRepo.UpdateHangTrongKho(htk);
+            }
+
+            order.TrangThai = "Đã vào kho";
             await _OrdersRepo.UpdateOrder(order);
             await _HisRepo.DriverAddLichSuTrangThai(new LichSuTrangThai
             {
                 MaDon = maDon,
                 TrangThai = "Giao thất bại",
-                GhiChu = "Tài xế báo giao thất bại",
+                GhiChu = $"Giao thất bại: {lyDo}",
                 CapNhatBoi = uid,
             });
-            //return (true, $"Đã ghi nhận giao thất bại đơn #DH{maDon:D5}. Quản lý kho sẽ xử lý tiếp.");
-            return (true, $"Đã ghi nhận giao thất bại đơn #DH{maDon:D5}. Đơn hàng được trả lại khách hàng.");
+            return (true, $"Đã ghi nhận giao thất bại đơn #DH{maDon:D5}. Hàng đã được trả về kho.");
         }
+            //return (true, $"Đã ghi nhận giao thất bại đơn #DH{maDon:D5}. Quản lý kho sẽ xử lý tiếp.");
+
 
         public async Task<List<DonHang>> TaixeGetDonHangsByMaTXAndTrangThaiAndDescending(int MaTX, string trangthai)
         {

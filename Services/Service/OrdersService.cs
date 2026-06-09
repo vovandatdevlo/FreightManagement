@@ -34,6 +34,9 @@ namespace FreightManagement.Services.Service
 
         public async Task<string> CreateOrderService(int userId, CreateOrderDTO obj)
         {
+            var sdt = obj.SdtNguoiNhan?.Trim() ?? "";
+            if (sdt.Length != 10 || !sdt.All(char.IsDigit))
+                return "Số điện thoại người nhận không hợp lệ (phải đúng 10 số).";
 
             int donGia = obj.LoaiHang switch
             {

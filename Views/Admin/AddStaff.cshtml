@@ -71,7 +71,9 @@
         @* Số điện thoại *@
         <div style="margin-bottom:20px">
             <label style="display:block;margin-bottom:6px;font-weight:600;color:#333">Số điện thoại</label>
-            <input asp-for="SoDienThoai" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:4px;font-size:.95rem" placeholder="09xxxxxxxx" />
+            <input asp-for="SoDienThoai" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:4px;font-size:.95rem" placeholder="09xxxxxxxx"
+                   maxlength="10"
+                   oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,10)" />
         </div>
 
         @* Địa chỉ / Tỉnh phụ trách — dropdown tỉnh thành, chỉ bắt buộc với Tài xế *@
