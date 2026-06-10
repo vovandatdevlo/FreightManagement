@@ -52,6 +52,7 @@ namespace FreightManagement.Models
         public DateTime NgayCapNhat { get; set; } = DateTime.Now;
 
         // Navigation
+
         //[ForeignKey("MaKH")]
         public Users KhachHang { get; set; } = null!;
         //[ForeignKey("MaTX")]
