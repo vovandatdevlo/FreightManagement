@@ -104,6 +104,25 @@ namespace FreightManagement.Services.Service
 
             // trả hàng về kho
             var htk = await _HTKRepo.GetHangTrongKhoByMaDon(maDon);
+
+            var kho1 = await _WareRepo.GetKhoHangById(htk.MaKho);
+
+            if (order.DonGia == 25000 || order.DonGia == 50000)
+            {
+                if (kho1.SoLuongHienTai + 1 > kho1.SucChua)
+                {
+                    return (false, "Không thể báo thất bại cho đơn hàng này.");
+                }
+            }
+
+            else
+            {
+                if (kho1.SoLuongHienTai + order.SoLuong > kho1.SucChua)
+                {
+                    return (false, "Không thể báo thất bại cho đơn hàng này.");
+                }
+            }
+
             if (htk != null)
             {
                 var kho = await _WareRepo.GetKhoHangById(htk.MaKho);
