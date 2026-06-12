@@ -85,7 +85,8 @@ namespace FreightManagement.Data
 
             // Khai báo triggers để EF Core không dùng OUTPUT clause
             modelBuilder.Entity<DonHang>()
-                .ToTable("DonHang", tb => {
+                .ToTable("DonHang", tb =>
+                {
                     tb.HasTrigger("trg_LichSuTrangThai");
                     tb.HasTrigger("trg_ThongKeDoanhThu");
                     tb.HasTrigger("trg_HangXuatKho");
@@ -93,7 +94,8 @@ namespace FreightManagement.Data
                 });
 
             modelBuilder.Entity<HangTrongKho>()
-                .ToTable("HangTrongKho", tb => {
+                .ToTable("HangTrongKho", tb =>
+                {
                     tb.HasTrigger("trg_HangVaoKho");
                 });
             // ========================

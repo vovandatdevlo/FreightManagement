@@ -34,8 +34,6 @@ namespace FreightManagement.Models
         [Range(1000, int.MaxValue), Display(Name = "Đơn giá (VNĐ)")]
         public int DonGia { get; set; } = 10000;
 
-        // Computed: ChiPhi = SoLuong * DonGia (tính ở DB, đọc-only ở C#)
-        //[DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         [Display(Name = "Chi phí")]
         public int ChiPhi { get; set; }
 
