@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FreightManagement.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260512032507_InitialCreate")]
+    [Migration("20260612074559_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -20,7 +20,7 @@ namespace FreightManagement.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.0")
+                .HasAnnotation("ProductVersion", "8.0.23")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -96,18 +96,7 @@ namespace FreightManagement.Migrations
 
                     b.HasIndex("MaTX");
 
-                    b.ToTable("DonHang", null, t =>
-                        {
-                            t.HasTrigger("trg_HangXuatKho");
-
-                            t.HasTrigger("trg_LichSuTrangThai");
-
-                            t.HasTrigger("trg_ThongKeDoanhThu");
-
-                            t.HasTrigger("trg_TinhChiPhi");
-                        });
-
-                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+                    b.ToTable("DonHang", (string)null);
                 });
 
             modelBuilder.Entity("FreightManagement.Models.HangTrongKho", b =>
@@ -129,12 +118,7 @@ namespace FreightManagement.Migrations
                     b.HasIndex("MaDon")
                         .IsUnique();
 
-                    b.ToTable("HangTrongKho", null, t =>
-                        {
-                            t.HasTrigger("trg_HangVaoKho");
-                        });
-
-                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+                    b.ToTable("HangTrongKho", (string)null);
                 });
 
             modelBuilder.Entity("FreightManagement.Models.KhoHang", b =>
@@ -899,7 +883,7 @@ namespace FreightManagement.Migrations
                             DiaChi = "Hà Nội",
                             Email = "admin@vanchuyen.com",
                             HoTen = "Admin Hệ Thống",
-                            NgayTao = new DateTime(2026, 5, 12, 10, 25, 7, 681, DateTimeKind.Local).AddTicks(5318),
+                            NgayTao = new DateTime(2026, 6, 12, 14, 45, 58, 323, DateTimeKind.Local).AddTicks(8115),
                             PasswordHash = "HASH_password123",
                             RoleId = 1,
                             SoDienThoai = "0900000001",
@@ -911,7 +895,7 @@ namespace FreightManagement.Migrations
                             DiaChi = "TP.HCM",
                             Email = "khachhang@gmail.com",
                             HoTen = "Nguyễn Văn A",
-                            NgayTao = new DateTime(2026, 5, 12, 10, 25, 7, 681, DateTimeKind.Local).AddTicks(5321),
+                            NgayTao = new DateTime(2026, 6, 12, 14, 45, 58, 323, DateTimeKind.Local).AddTicks(8117),
                             PasswordHash = "HASH_password123",
                             RoleId = 2,
                             SoDienThoai = "0912345678",
@@ -923,7 +907,7 @@ namespace FreightManagement.Migrations
                             DiaChi = "Đà Nẵng",
                             Email = "quanlykho@gmail.com",
                             HoTen = "Trần Thị B",
-                            NgayTao = new DateTime(2026, 5, 12, 10, 25, 7, 681, DateTimeKind.Local).AddTicks(5323),
+                            NgayTao = new DateTime(2026, 6, 12, 14, 45, 58, 323, DateTimeKind.Local).AddTicks(8119),
                             PasswordHash = "HASH_password123",
                             RoleId = 3,
                             SoDienThoai = "0987654321",
@@ -935,7 +919,7 @@ namespace FreightManagement.Migrations
                             DiaChi = "Hà Nội",
                             Email = "taixe@gmail.com",
                             HoTen = "Lê Văn C",
-                            NgayTao = new DateTime(2026, 5, 12, 10, 25, 7, 681, DateTimeKind.Local).AddTicks(5325),
+                            NgayTao = new DateTime(2026, 6, 12, 14, 45, 58, 323, DateTimeKind.Local).AddTicks(8124),
                             PasswordHash = "HASH_password123",
                             RoleId = 4,
                             SoDienThoai = "0976543210",
@@ -947,7 +931,7 @@ namespace FreightManagement.Migrations
                             DiaChi = "Hà Nội",
                             Email = "taixe1@gmail.com",
                             HoTen = "Lê Văn D",
-                            NgayTao = new DateTime(2026, 5, 12, 10, 25, 7, 681, DateTimeKind.Local).AddTicks(5327),
+                            NgayTao = new DateTime(2026, 6, 12, 14, 45, 58, 323, DateTimeKind.Local).AddTicks(8127),
                             PasswordHash = "HASH_password123",
                             RoleId = 4,
                             SoDienThoai = "0976543211",

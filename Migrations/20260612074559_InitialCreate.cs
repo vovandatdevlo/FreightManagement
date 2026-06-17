@@ -212,11 +212,11 @@ namespace FreightManagement.Migrations
                 columns: new[] { "UserId", "CCCD", "DiaChi", "Email", "HoTen", "NgayTao", "PasswordHash", "RoleId", "SoDienThoai", "TrangThai" },
                 values: new object[,]
                 {
-                    { 1, null, "Hà Nội", "admin@vanchuyen.com", "Admin Hệ Thống", new DateTime(2026, 5, 12, 10, 25, 7, 681, DateTimeKind.Local).AddTicks(5318), "HASH_password123", 1, "0900000001", "HoatDong" },
-                    { 2, null, "TP.HCM", "khachhang@gmail.com", "Nguyễn Văn A", new DateTime(2026, 5, 12, 10, 25, 7, 681, DateTimeKind.Local).AddTicks(5321), "HASH_password123", 2, "0912345678", "HoatDong" },
-                    { 3, null, "Đà Nẵng", "quanlykho@gmail.com", "Trần Thị B", new DateTime(2026, 5, 12, 10, 25, 7, 681, DateTimeKind.Local).AddTicks(5323), "HASH_password123", 3, "0987654321", "HoatDong" },
-                    { 4, null, "Hà Nội", "taixe@gmail.com", "Lê Văn C", new DateTime(2026, 5, 12, 10, 25, 7, 681, DateTimeKind.Local).AddTicks(5325), "HASH_password123", 4, "0976543210", "HoatDong" },
-                    { 5, null, "Hà Nội", "taixe1@gmail.com", "Lê Văn D", new DateTime(2026, 5, 12, 10, 25, 7, 681, DateTimeKind.Local).AddTicks(5327), "HASH_password123", 4, "0976543211", "HoatDong" }
+                    { 1, null, "Hà Nội", "admin@vanchuyen.com", "Admin Hệ Thống", new DateTime(2026, 6, 12, 14, 45, 58, 323, DateTimeKind.Local).AddTicks(8115), "HASH_password123", 1, "0900000001", "HoatDong" },
+                    { 2, null, "TP.HCM", "khachhang@gmail.com", "Nguyễn Văn A", new DateTime(2026, 6, 12, 14, 45, 58, 323, DateTimeKind.Local).AddTicks(8117), "HASH_password123", 2, "0912345678", "HoatDong" },
+                    { 3, null, "Đà Nẵng", "quanlykho@gmail.com", "Trần Thị B", new DateTime(2026, 6, 12, 14, 45, 58, 323, DateTimeKind.Local).AddTicks(8119), "HASH_password123", 3, "0987654321", "HoatDong" },
+                    { 4, null, "Hà Nội", "taixe@gmail.com", "Lê Văn C", new DateTime(2026, 6, 12, 14, 45, 58, 323, DateTimeKind.Local).AddTicks(8124), "HASH_password123", 4, "0976543210", "HoatDong" },
+                    { 5, null, "Hà Nội", "taixe1@gmail.com", "Lê Văn D", new DateTime(2026, 6, 12, 14, 45, 58, 323, DateTimeKind.Local).AddTicks(8127), "HASH_password123", 4, "0976543211", "HoatDong" }
                 });
 
             migrationBuilder.InsertData(

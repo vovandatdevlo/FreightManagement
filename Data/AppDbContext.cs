@@ -83,21 +83,6 @@ namespace FreightManagement.Data
             modelBuilder.Entity<ThongKeDoanhThu>()
                 .HasIndex(t => t.MaDon).IsUnique();
 
-            // Khai báo triggers để EF Core không dùng OUTPUT clause
-            modelBuilder.Entity<DonHang>()
-                .ToTable("DonHang", tb =>
-                {
-                    tb.HasTrigger("trg_LichSuTrangThai");
-                    tb.HasTrigger("trg_ThongKeDoanhThu");
-                    tb.HasTrigger("trg_HangXuatKho");
-                    tb.HasTrigger("trg_TinhChiPhi");
-                });
-
-            modelBuilder.Entity<HangTrongKho>()
-                .ToTable("HangTrongKho", tb =>
-                {
-                    tb.HasTrigger("trg_HangVaoKho");
-                });
             // ========================
             // SEED DATA (giống dbvanchuyen2.sql)
             // ========================
